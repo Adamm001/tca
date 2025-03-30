@@ -1,0 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --color-default-bg: #252525;
+  --color-gray-bg: #2f2f2f;
+  --color-brown-bg: #46332a;
+  --color-orange-bg: #573c27;
+  --color-yellow-bg: #53442c;
+  --color-green-bg: #2a3c31;
+  --color-blue-bg: #1e394c;
+  --color-purple-bg: #3a2e47;
+  --color-pink-bg: #492e3b;
+  --color-red-bg: #4d302b;
+  --color-gray: #9b9b9b;
+  --color-brown: #ad8370;
+  --color-orange: #bd8052;
+  --color-yellow: #c29a59;
+  --color-green: #659c75;
+  --color-blue: #5498ce;
+  --color-purple: #956acd;
+  --color-pink: #c25f94;
+  --color-red: #cf5d57;
+}
+
+* {
+  font-family: "Ubuntu Mono", monospace;
+}
