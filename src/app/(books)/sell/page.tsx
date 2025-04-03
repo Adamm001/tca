@@ -5,6 +5,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "@/firebaseConfig";
 import { auth } from "@/firebaseConfig"; // Import the auth object
 import { onAuthStateChanged, User } from "firebase/auth"; // Import necessary Firebase Auth functions
+import Image from "next/image";
 
 interface Book {
   title: string;
@@ -238,7 +239,9 @@ const Sell = () => {
 
         {previewUrl && (
           <div className="mt-4 flex justify-center">
-            <img
+            <Image
+              height={1000}
+              width={1000}
               src={previewUrl}
               alt="Preview Image"
               className="w-40 h-40 rounded-lg border border-[#4a4a4a] shadow-md"
