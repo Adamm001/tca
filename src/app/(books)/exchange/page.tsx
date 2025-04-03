@@ -4,12 +4,23 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 
+// 📌 Номын өгөгдлийн интерфэйс
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  price: number;
+  condition: "шинэ" | "хэрэглэсэн" | "хуучин";
+  imageUrl?: string;
+  status: string;
+}
+
 // Firestore-с ном унших функц
-const getBooksFromFirestore = async () => {
+const getBooksFromFirestore = async (): Promise<Book[]> => {
   const querySnapshot = await getDocs(collection(db, "books"));
-  const books = querySnapshot.docs.map((doc) => ({
+  const books: Book[] = querySnapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    ...(doc.data() as Omit<Book, "id">),
   }));
   console.log("Номын жагсаалт:", books);
   return books;
@@ -17,7 +28,7 @@ const getBooksFromFirestore = async () => {
 
 const Exchange = () => {
   // 📚 Номын өгөгдлийн төлөв (useState ашиглана)
-  const [books, setBooks] = useState<any[]>([]); // Firestore-оос татах тул анх хоосон массив
+  const [books, setBooks] = useState<Book[]>([]); // Firestore-оос татах тул анх хоосон массив
 
   // Номын дэлгэрэнгүй харах товчийг дарах үед ажиллах функц
   const handleViewDetails = (title: string) => {
@@ -45,8 +56,8 @@ const Exchange = () => {
                 title={book.title}
                 author={book.author}
                 price={book.price}
-                condition={book.condition as "шинэ" | "хэрэглэсэн" | "хуучин"}
-                imageUrl={book.imageUrl}
+                condition={book.condition}
+                imageUrl={book.imageUrl || "/default-image.jpg"}
                 onClick={() => handleViewDetails(book.title)}
               />
             )

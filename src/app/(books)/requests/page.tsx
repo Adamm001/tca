@@ -1,12 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  collection,
-  getDocs,
-  updateDoc,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 
 // Хүсэлтийн төрлийн interface
