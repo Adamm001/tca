@@ -12,7 +12,7 @@ import { db } from "@/firebaseConfig";
 // Хүсэлтийн төрлийн interface
 interface Request {
   id: string;
-  type: "purchase" | "exchange";
+  type: "purchase" | "exchange" | "donation"; // Added donation type
   bookTitle: string;
   requester: string;
   status: "хүлээгдэж байна" | "баталгаажсан" | "цуцлагдсан";
@@ -22,29 +22,35 @@ interface Request {
 const Requests = () => {
   const [purchaseRequests, setPurchaseRequests] = useState<Request[]>([]);
   const [exchangeRequests, setExchangeRequests] = useState<Request[]>([]);
+  const [donationRequests, setDonationRequests] = useState<Request[]>([]); // State for donation requests
 
   // Firestore-оос бүх хүсэлтийг татах
   const getRequestsFromFirestore = async () => {
     const querySnapshot = await getDocs(collection(db, "requests"));
     const requests = querySnapshot.docs.map((doc) => ({
-      ...(doc.data() as Request), // ✅ Эхлээд бүх өгөгдлийг авч байна
-      id: doc.id, // ✅ Зөвхөн id-г нэмнэ
+      ...(doc.data() as Request),
+      id: doc.id,
       status: doc.data().status as
         | "хүлээгдэж байна"
         | "баталгаажсан"
-        | "цуцлагдсан", // ✅ status-г зөв форматлах
+        | "цуцлагдсан",
     })) as Request[];
+
     // Хүсэлтүүдийг төрөлөөр нь ялгах
     const purchase = requests.filter((req) => req.type === "purchase");
     const exchange = requests.filter((req) => req.type === "exchange");
+    const donation = requests.filter((req) => req.type === "donation"); // Added donation filter
+
     setPurchaseRequests(purchase);
     setExchangeRequests(exchange);
+    setDonationRequests(donation); // Store donation requests
   };
+
   // Захиалгын төлөв өөрчлөх функц
   const handleUpdateStatus = async (
     id: string,
     newStatus: "хүлээгдэж байна" | "баталгаажсан" | "цуцлагдсан",
-    type: "purchase" | "exchange"
+    type: "purchase" | "exchange" | "donation" // Include donation type
   ) => {
     const requestRef = doc(db, "requests", id);
     await updateDoc(requestRef, { status: newStatus });
@@ -54,11 +60,16 @@ const Requests = () => {
         req.id === id ? { ...req, status: newStatus } : req
       );
       setPurchaseRequests(updatedRequests);
-    } else {
+    } else if (type === "exchange") {
       const updatedRequests = exchangeRequests.map((req) =>
         req.id === id ? { ...req, status: newStatus } : req
       );
-      setExchangeRequests(updatedRequests); // ✅ Алдааг зассан
+      setExchangeRequests(updatedRequests);
+    } else if (type === "donation") {
+      const updatedRequests = donationRequests.map((req) =>
+        req.id === id ? { ...req, status: newStatus } : req
+      );
+      setDonationRequests(updatedRequests); // Update donation requests
     }
   };
 
@@ -69,7 +80,7 @@ const Requests = () => {
   // Хүсэлтийн хүснэгт харуулах функц
   const renderRequestsTable = (
     requests: Request[],
-    type: "purchase" | "exchange"
+    type: "purchase" | "exchange" | "donation" // Handle donation type
   ) => (
     <div className="bg-[#252525] p-6 rounded-lg border border-[#2f2f2f] shadow-lg">
       {requests.length === 0 ? (
@@ -161,6 +172,13 @@ const Requests = () => {
         <div>
           <h2 className="text-2xl font-semibold mb-4">Солилцох хүсэлт</h2>
           {renderRequestsTable(exchangeRequests, "exchange")}
+        </div>
+
+        {/* Хандивлах хүсэлт */}
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Хандивлах хүсэлт</h2>
+          {renderRequestsTable(donationRequests, "donation")}{" "}
+          {/* Render donation requests */}
         </div>
       </div>
     </div>

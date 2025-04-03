@@ -119,7 +119,7 @@ const Search = () => {
 
   return (
     <div className="w-full flex flex-col items-center min-h-screen bg-[#1a1a1a] text-white p-4">
-      <h1 className="text-3xl font-bold mb-4">📚 Ном хайх</h1>
+      <h1 className="text-3xl font-bold mb-4">Ном хайх</h1>
       <form
         onSubmit={handleSearch}
         className="p-4 rounded-lg border border-[#4a4a4a] w-full max-w-3/5 space-y-4 bg-[#252525]"

@@ -10,9 +10,9 @@ const ForgotPass = () => {
   const [success, setSuccess] = useState(false);
 
   const linkHref = [
-    { href: "/login", label: "Login" },
-    { href: "/sign-up", label: "Sign Up" },
-    { href: "/forgotPass", label: "Forgot Password" },
+    { href: "/login", label: "Нэвтрэх" },
+    { href: "/sign-up", label: "Бүртгүүлэх" },
+    { href: "/forgotPass", label: "Нууц үгээ мартсан" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,7 +33,7 @@ const ForgotPass = () => {
 
   return (
     <>
-      <h1 className="text-2xl font-bold uppercase ">Forgot Password</h1>
+      <h1 className="text-2xl font-bold uppercase ">Нууц үгээ мартсан</h1>
       <ul className="flex flex-col w-full gap-2">
         {linkHref.map((link, index) => (
           <li
@@ -54,27 +54,28 @@ const ForgotPass = () => {
           htmlFor="email"
           className="block text-sm font-medium text-gray-300"
         >
-          Email
+          И-мэйл хаяг
         </label>
         <input
           type="email"
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder="И-мэйл"
+          required
           className="w-full h-10 border border-[#4a4a4a] p-1 rounded-md focus:outline-0 focus:bg-[#191919]"
         />
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         {success && (
           <p className="text-green-500 text-sm mt-2">
-            Password reset email sent!
+            И-мэйл илгээгдлээ. Нууц үгээ солихын тулд и-мэйлээ шалгана уу.
           </p>
         )}
         <button
           type="submit"
           className="bg-[#4281db] mt-5 w-full h-10 text-xl font-bold rounded-md border-1 border-[#4a4a4a] cursor-pointer px-3 py-1 hover:bg-[#3375cd] active:bg-[#0e69c3]"
         >
-          Send
+          Илгээх
         </button>
       </form>
     </>

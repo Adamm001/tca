@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import { updateDoc, doc } from "firebase/firestore";
+import { db } from "@/firebaseConfig";
 
 // Props interface тодорхойлох
 interface ProfileBookCardProps {
@@ -30,12 +32,22 @@ const ProfileBookCard: React.FC<ProfileBookCardProps> = ({
   const [editedPrice, setEditedPrice] = useState(price);
 
   // Засвар хадгалах функц
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editedTitle.trim()) {
       alert("Номын нэр хоосон байж болохгүй!");
       return;
     }
+
+    // Update the Firestore document with new data
+    const bookRef = doc(db, "books", String(id)); // Ensure to pass the correct book ID
+    await updateDoc(bookRef, {
+      title: editedTitle,
+      price: editedPrice,
+    });
+
+    // Notify parent component about the update (optional)
     onEdit(id);
+
     setIsEditing(false);
   };
 

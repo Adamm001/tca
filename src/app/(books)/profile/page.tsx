@@ -1,4 +1,5 @@
-"use client";
+"use client"; // Энэ зааврыг хамгийн эхэнд бичих хэрэгтэй
+
 import React, { useEffect, useState } from "react";
 import { auth, db, storage } from "@/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -11,6 +12,7 @@ import {
   doc,
   deleteDoc,
   updateDoc,
+  getDoc,
 } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 
@@ -47,6 +49,7 @@ const updateBookInFirestore = async (bookId: string, updatedData: any) => {
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userBooks, setUserBooks] = useState<any[]>([]);
+  const [userInfo, setUserInfo] = useState<any>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
 
   // 📚 Firestore-с хэрэглэгчийн номыг татах функц
   const fetchUserBooks = async (email: string) => {
@@ -60,6 +63,16 @@ const Profile = () => {
     setUserBooks(books);
   };
 
+  // 🔄 Firestore-с хэрэглэгчийн нэмэлт мэдээллийг татах
+  const fetchUserInfo = async (uid: string) => {
+    const userDoc = doc(db, "users", uid);
+    const userSnapshot = await getDoc(userDoc);
+    if (userSnapshot.exists()) {
+      const userData = userSnapshot.data();
+      setUserInfo(userData);
+    }
+  };
+
   // 🔄 Firebase-аас хэрэглэгчийн мэдээллийг татах
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -67,7 +80,8 @@ const Profile = () => {
 
       // Хэрэв хэрэглэгч нэвтэрсэн бол тухайн хэрэглэгчийн номыг татах
       if (currentUser?.email) {
-        fetchUserBooks(currentUser.email);
+        fetchUserBooks(currentUser.email || "");
+        fetchUserInfo(currentUser.uid);
       }
     });
 
@@ -96,14 +110,19 @@ const Profile = () => {
       <div className="max-w-3xl mx-auto">
         {/* 👤 Хувийн мэдээлэл */}
         <h2 className="text-3xl font-bold mb-6">👤 Хувийн мэдээлэл</h2>
-        {user ? (
+        {user && userInfo ? (
           <div className="bg-[#252525] p-4 rounded-lg border border-[#2f2f2f] mb-8">
             <p className="text-lg">
               <strong>И-мэйл:</strong> {user.email}
             </p>
-            {user.displayName && (
+            {userInfo.name && (
               <p className="text-lg">
-                <strong>Нэр:</strong> {user.displayName}
+                <strong>Нэр:</strong> {userInfo.name}
+              </p>
+            )}
+            {userInfo.phone && (
+              <p className="text-lg">
+                <strong>Утасны дугаар:</strong> {userInfo.phone}
               </p>
             )}
           </div>

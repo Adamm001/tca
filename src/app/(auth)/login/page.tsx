@@ -13,9 +13,9 @@ const Login = () => {
 
   const router = useRouter();
   const linkHref = [
-    { href: "/login", label: "Login" },
-    { href: "/sign-up", label: "Sign Up" },
-    { href: "/forgotPass", label: "Forgot Password" },
+    { href: "/login", label: "Нэвтрэх" },
+    { href: "/sign-up", label: "Бүртгүүлэх" },
+    { href: "/forgotPass", label: "Нууц үгээ мартсан" },
   ];
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -24,22 +24,22 @@ const Login = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/container"); // Redirect to home page after successful login
+      router.push("/profile"); // Redirect to home page after successful login
     } catch (err) {
-      setError("Invalid email or password.");
-      console.error("Login error:", err);
+      setError("И-мэйл, Нууц үг буруу байна.");
+      console.error("Нэвтрэх алдаа:", err);
     }
   };
   return (
     <>
-      <h1 className="text-2xl font-bold uppercase ">
-        Log in to your iBook account
-      </h1>
+      <h1 className="text-2xl font-bold uppercase ">Нэвтрэх</h1>
       <ul className="flex flex-col w-full gap-2">
         {linkHref.map((link, index) => (
           <li
             key={index}
-            className="w-full h-10 rounded-md border border-[#4a4a4a] hover:bg-[#2f2f2f] active:bg-[#252525] active:scale-101 transition"
+            className={`w-full h-10 rounded-md border border-[#4a4a4a] hover:bg-[#2f2f2f] active:bg-[#252525] active:scale-101 transition ${
+              link.href === "/login" ? "bg-[#2f2f2f]" : ""
+            }`}
           >
             <Link
               className="w-full h-full flex items-center justify-center text-lg "
@@ -56,14 +56,14 @@ const Login = () => {
           htmlFor="email"
           className="block text-sm font-medium text-gray-300"
         >
-          Email
+          И-мэйл хаяг
         </label>
         <input
           type="email"
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder="И-мэйл"
           className="w-full border border-[#4a4a4a] p-1 h-10 rounded-md focus:outline-0 focus:bg-[#191919]"
         />
 
@@ -71,13 +71,13 @@ const Login = () => {
           htmlFor="password"
           className="block text-sm font-medium text-gray-300 mt-2"
         >
-          Password
+          Нууц үг
         </label>
         <input
           type="password"
           id="password"
           value={password}
-          placeholder="Password"
+          placeholder="Нууц үг"
           onChange={(e) => setPassword(e.target.value)}
           className="w-full p-1 h-10 border border-[#4a4a4a] rounded-md focus:outline-0 focus:bg-[#191919]"
         />
@@ -87,7 +87,7 @@ const Login = () => {
           type="submit"
           className="bg-[#4281db] w-full h-10 text-xl font-bold rounded-md border-1 border-[#4a4a4a] cursor-pointer px-3 py-1 mt-5 hover:bg-[#3375cd] active:bg-[#0e69c3]"
         >
-          Login
+          Нэвтрэх
         </button>
       </form>
     </>

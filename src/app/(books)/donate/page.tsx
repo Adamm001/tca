@@ -15,7 +15,7 @@ const getBooksFromFirestore = async () => {
   return books;
 };
 
-const Exchange = () => {
+const Container = () => {
   // 📚 Номын өгөгдлийн төлөв (useState ашиглана)
   const [books, setBooks] = useState<any[]>([]); // Firestore-оос татах тул анх хоосон массив
 
@@ -34,26 +34,32 @@ const Exchange = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen flex flex-col items-center overflow-y-auto text-white p-5 ">
-      <h1 className="text-3xl font-bold mb-6 text-center">Солилцох Номнууд</h1>
-      <div className="w-full gap-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {books.map(
-          (book) =>
-            book.status === "Солилцох" && (
-              <BookCard
-                key={book.id}
-                title={book.title}
-                author={book.author}
-                price={book.price}
-                condition={book.condition as "шинэ" | "хэрэглэсэн" | "хуучин"}
-                imageUrl={book.imageUrl}
-                onClick={() => handleViewDetails(book.title)}
-              />
-            )
-        )}
-      </div>
+    <div className="w-full h-screen flex flex-col items-center overflow-y-auto text-white p-5 bg-[#1a1a1a]">
+      <h1 className="text-3xl font-bold mb-6 text-center">Хандивын номнууд</h1>
+
+      {/* Ном байхгүй үед харагдах хэсэг */}
+      {books.length === 0 ? (
+        <div className="text-center text-gray-400 text-lg">Ном олдсонгүй.</div>
+      ) : (
+        <div className="w-full gap-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+          {books.map(
+            (book) =>
+              book.status === "Хандивлах" && (
+                <BookCard
+                  key={book.id}
+                  title={book.title}
+                  author={book.author}
+                  price={book.price}
+                  condition={book.condition as "шинэ" | "хэрэглэсэн" | "хуучин"}
+                  imageUrl={book.imageUrl || "/images/book-placeholder.png"}
+                  onClick={() => handleViewDetails(book.title)}
+                />
+              )
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-export default Exchange;
+export default Container;

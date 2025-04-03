@@ -4,28 +4,69 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
+import { query, where, collection, getDocs } from "firebase/firestore";
+
+import { setDoc, doc } from "firebase/firestore";
+import { db } from "@/firebaseConfig";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState(""); // Хэрэглэгчийн нэр
+  const [phone, setPhone] = useState(""); // Утасны дугаар
   const [error, setError] = useState("");
 
   const linkHref = [
-    { href: "/login", label: "Login" },
-    { href: "/sign-up", label: "Sign Up" },
-    { href: "/forgotPass", label: "Forgot Password" },
+    { href: "/login", label: "Нэвтрэх" },
+    { href: "/sign-up", label: "Бүртгүүлэх" },
+    { href: "/forgotPass", label: "Нууц үгээ мартсан" },
   ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Алдааны мессежийг цэвэрлэх
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // Redirect user or show success message
+      // Firestore-оос и-мэйл болон утасны дугаарыг шалгах
+      const usersRef = collection(db, "users");
+      const emailQuery = query(usersRef, where("email", "==", email));
+      const phoneQuery = query(usersRef, where("phone", "==", phone));
+
+      const emailSnapshot = await getDocs(emailQuery);
+      const phoneSnapshot = await getDocs(phoneQuery);
+
+      if (!emailSnapshot.empty) {
+        setError("Энэ И-мейл хаяг бүртгэлтэй байна.");
+        return;
+      }
+
+      if (!phoneSnapshot.empty) {
+        setError("Энэ утасны дугаар бүртгэлтэй байна.");
+        return;
+      }
+
+      // Хэрэв давхардал байхгүй бол хэрэглэгчийг бүртгэх
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Firebase Firestore-д хэрэглэгчийн мэдээллийг хадгалах
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        phone,
+        email,
+      });
+
+      // Амжилттай бүртгүүлсний дараа хэрэглэгчийг нэвтрэх хуудас руу шилжүүлэх
+      window.location.href = "/login";
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -37,7 +78,7 @@ const SignUp = () => {
 
   return (
     <>
-      <h1 className="text-2xl font-bold uppercase ">Sign Up</h1>
+      <h1 className="text-2xl font-bold uppercase ">Бүртгүүлэх</h1>
       <ul className="flex flex-col w-full gap-2">
         {linkHref.map((link, index) => (
           <li
@@ -55,17 +96,49 @@ const SignUp = () => {
       </ul>
       <form className="flex flex-col w-full" onSubmit={handleSubmit}>
         <label
-          htmlFor="email"
+          htmlFor="name"
           className="block text-sm font-medium text-gray-300"
         >
-          Email
+          Нэр
+        </label>
+        <input
+          type="text"
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Нэр"
+          className="w-full h-10 border border-[#4a4a4a] p-1 rounded-md focus:outline-0 focus:bg-[#191919]"
+          required
+        />
+
+        <label
+          htmlFor="phone"
+          className="block text-sm font-medium text-gray-300 mt-2"
+        >
+          Утасны дугаар
+        </label>
+        <input
+          type="text"
+          id="phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Утасны дугаар"
+          className="w-full h-10 border border-[#4a4a4a] p-1 rounded-md focus:outline-0 focus:bg-[#191919]"
+          required
+        />
+
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-300 mt-2"
+        >
+          И-мэйл хаяг
         </label>
         <input
           type="email"
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder="И-мэйл"
           className="w-full h-10 border border-[#4a4a4a] p-1 rounded-md focus:outline-0 focus:bg-[#191919]"
         />
 
@@ -73,14 +146,15 @@ const SignUp = () => {
           htmlFor="password"
           className="block text-sm font-medium text-gray-300 mt-2"
         >
-          Password
+          Нууц үг
         </label>
         <input
           type="password"
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder="Нууц үг"
+          required
           className="w-full h-10 border border-[#4a4a4a] p-1 rounded-md focus:outline-0 focus:bg-[#191919]"
         />
 
@@ -88,14 +162,15 @@ const SignUp = () => {
           htmlFor="confirmPassword"
           className="block text-sm font-medium text-gray-300 mt-2"
         >
-          Re-enter Password
+          Нууц үг давтах
         </label>
         <input
           type="password"
           id="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Re-Password"
+          placeholder="Нууц үг давтах"
+          required
           className="w-full h-10 border border-[#4a4a4a] p-1 rounded-md focus:outline-0 focus:bg-[#191919]"
         />
         <p className="text-[#cf5d57]">{error}</p>
@@ -103,7 +178,7 @@ const SignUp = () => {
           type="submit"
           className="bg-[#4281db] mt-5 w-full h-10 text-xl font-bold rounded-md border-1 border-[#4a4a4a] cursor-pointer px-3 py-1 hover:bg-[#3375cd] active:bg-[#0e69c3]"
         >
-          Sign Up
+          Бүртгүүлэх
         </button>
       </form>
     </>

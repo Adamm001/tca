@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { auth } from "@/firebaseConfig";
+import { auth, db } from "@/firebaseConfig";
 import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,9 @@ import {
   Files,
   MessageSquare,
   Search,
+  Banknote,
 } from "lucide-react"; // Lucide-ийн icon-ыг rename хийж оруулах
+import { doc, getDoc } from "firebase/firestore";
 
 export default function BooksLayout({
   children,
@@ -24,21 +26,35 @@ export default function BooksLayout({
 }>) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [userInfo, setUserInfo] = useState<any>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
 
   const linkHref = [
-    { icon: Search, href: "/search", label: "Ном хайх" },
-    { icon: LibraryBig, href: "/container", label: "Номнууд" },
+    { icon: Search, href: "/search", label: "Ном Хайх" },
+    { icon: LibraryBig, href: "/container", label: "Зарах Номнууд" },
     { icon: ArrowLeftRight, href: "/exchange", label: "Солилцох Номнууд" },
+    { icon: Banknote, href: "/donate", label: "Хандивын Номнууд" },
   ];
   const functionLinkHref = [
-    { icon: Plus, href: "/sell", label: "Зар Нэмэх" },
+    { icon: Plus, href: "/sell", label: "Ном Нэмэх" },
     { icon: Files, href: "/requests", label: "Хүсэлтүүд" },
     { icon: MessageSquare, href: "/chats", label: "Чат" },
   ];
+  // 🔄 Firestore-с хэрэглэгчийн нэмэлт мэдээллийг татах
+  const fetchUserInfo = async (uid: string) => {
+    const userDoc = doc(db, "users", uid);
+    const userSnapshot = await getDoc(userDoc);
+    if (userSnapshot.exists()) {
+      const userData = userSnapshot.data();
+      setUserInfo(userData);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        fetchUserInfo(currentUser.uid); // Call fetchUserInfo when user is set
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -76,10 +92,10 @@ export default function BooksLayout({
                 <LucideUser className="text-[#9b9b9b]" />
               </div>
 
-              {user ? (
-                <p className="text-lg text-[#d5d5d5] truncate">{user.email}</p>
-              ) : (
-                <p className="text-lg text-[#d5d5d5]">Хэрэглэгчийн нэр</p>
+              {user && userInfo && (
+                <p className="text-lg text-[#d5d5d5] truncate">
+                  {userInfo.name ? userInfo.name : user.email}
+                </p>
               )}
             </Link>
             {/* Үндсэн холбоосууд */}
@@ -117,7 +133,7 @@ export default function BooksLayout({
             onClick={handleLogout}
             className="w-full h-8 p-1 flex items-center gap-3 hover:bg-[#2c2c2c] rounded-lg transition ease-in-out duration-200 text-[#d5d5d5]"
           >
-            <LogOut className="w-5 h-5 text-[#9b9b9b]" />
+            <LogOut className="w-5 h-5 text-red-500" />
             <p className="text-lg text-[#9b9b9b]">Гарах</p>
           </button>
         )}
