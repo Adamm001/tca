@@ -10,8 +10,23 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 
+// 📚 Номын өгөгдлийн төрлийг тодорхойлох
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  price: number;
+}
+
 // 📚 Ном хайх функц (Firestore-с хайлт хийх)
-const searchBooksInFirestore = async (queryParams: any) => {
+const searchBooksInFirestore = async (queryParams: {
+  title?: string;
+  author?: string;
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+}): Promise<Book[]> => {
   // Шүүлтүүдийг хадгалах массив
   const filters: QueryConstraint[] = [];
 
@@ -49,9 +64,9 @@ const searchBooksInFirestore = async (queryParams: any) => {
 
   try {
     const querySnapshot = await getDocs(q);
-    const books = querySnapshot.docs.map((doc) => ({
+    const books: Book[] = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data(),
+      ...(doc.data() as Omit<Book, "id">),
     }));
     console.log("Хайлтын үр дүн:", books);
     return books;
@@ -62,7 +77,13 @@ const searchBooksInFirestore = async (queryParams: any) => {
 };
 
 const Search = () => {
-  const [query, setQuery] = useState({
+  const [query, setQuery] = useState<{
+    title: string;
+    author: string;
+    category: string;
+    minPrice: string;
+    maxPrice: string;
+  }>({
     title: "",
     author: "",
     category: "",
@@ -70,7 +91,7 @@ const Search = () => {
     maxPrice: "",
   });
 
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [noResults, setNoResults] = useState(false);
 
   // 📚 Input утгыг өөрчлөх үед ажиллах функц
@@ -86,26 +107,8 @@ const Search = () => {
 
     console.log("Хайлтын утгууд:", query);
 
-    // Хайлтын үр дүнг авах
-    const searchParams: any = {};
-    if (query.title) {
-      searchParams.title = query.title;
-    }
-    if (query.author) {
-      searchParams.author = query.author;
-    }
-    if (query.category) {
-      searchParams.category = query.category;
-    }
-    if (query.minPrice) {
-      searchParams.minPrice = query.minPrice;
-    }
-    if (query.maxPrice) {
-      searchParams.maxPrice = query.maxPrice;
-    }
-
     // Firestore-оос хайлтын үр дүнг татах
-    const results = await searchBooksInFirestore(searchParams);
+    const results = await searchBooksInFirestore(query);
 
     // 🔍 Хайлтын үр дүнг шалгах
     if (results.length === 0) {

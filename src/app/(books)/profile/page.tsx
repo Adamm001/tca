@@ -16,6 +16,23 @@ import {
 } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 
+// 📌 Номын өгөгдлийн интерфэйс
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  price: number;
+  condition: "шинэ" | "хэрэглэсэн" | "хуучин";
+  imageUrl?: string;
+}
+
+// 📌 Хэрэглэгчийн мэдээллийн интерфэйс
+interface UserInfo {
+  name?: string;
+  phone?: string;
+  email?: string;
+}
+
 // 📚 Ном устгах функц
 const deleteBookFromFirestore = async (bookId: string, imageUrl: string) => {
   const bookRef = doc(db, "books", bookId);
@@ -36,7 +53,10 @@ const deleteBookFromFirestore = async (bookId: string, imageUrl: string) => {
 };
 
 // ✏️ Ном засах функц
-const updateBookInFirestore = async (bookId: string, updatedData: any) => {
+const updateBookInFirestore = async (
+  bookId: string,
+  updatedData: Partial<Book>
+) => {
   const bookRef = doc(db, "books", bookId);
   try {
     await updateDoc(bookRef, updatedData);
@@ -48,17 +68,17 @@ const updateBookInFirestore = async (bookId: string, updatedData: any) => {
 
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [userBooks, setUserBooks] = useState<any[]>([]);
-  const [userInfo, setUserInfo] = useState<any>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
+  const [userBooks, setUserBooks] = useState<Book[]>([]);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
 
   // 📚 Firestore-с хэрэглэгчийн номыг татах функц
   const fetchUserBooks = async (email: string) => {
     const q = query(collection(db, "books"), where("email", "==", email));
     const querySnapshot = await getDocs(q);
 
-    const books = querySnapshot.docs.map((doc) => ({
+    const books: Book[] = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data(),
+      ...(doc.data() as Omit<Book, "id">),
     }));
     setUserBooks(books);
   };
@@ -68,7 +88,7 @@ const Profile = () => {
     const userDoc = doc(db, "users", uid);
     const userSnapshot = await getDoc(userDoc);
     if (userSnapshot.exists()) {
-      const userData = userSnapshot.data();
+      const userData = userSnapshot.data() as UserInfo;
       setUserInfo(userData);
     }
   };
@@ -90,7 +110,7 @@ const Profile = () => {
 
   // 📚 Ном засах функц
   const handleEditBook = async (bookId: string) => {
-    const updatedData = {
+    const updatedData: Partial<Book> = {
       title: prompt("Шинэ номын нэр оруулна уу") || "",
     };
     if (updatedData.title) {
@@ -142,14 +162,14 @@ const Profile = () => {
             {userBooks.map((book) => (
               <ProfileBookCard
                 key={book.id}
-                id={book.id}
+                id={parseInt(book.id, 10)}
                 title={book.title}
                 author={book.author}
                 price={book.price}
-                condition={book.condition as "шинэ" | "хэрэглэсэн" | "хуучин"}
+                condition={book.condition}
                 imageUrl={book.imageUrl || "/images/book.png"}
                 onEdit={() => handleEditBook(book.id)}
-                onDelete={() => handleDeleteBook(book.id, book.imageUrl)}
+                onDelete={() => handleDeleteBook(book.id, book.imageUrl || "")}
               />
             ))}
           </div>

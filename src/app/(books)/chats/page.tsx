@@ -11,6 +11,15 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 
+// 📌 Мессежийн өгөгдлийн интерфэйс
+interface Message {
+  id: string;
+  userId: number;
+  sender: string;
+  message: string;
+  createdAt: Date | null;
+}
+
 // Хэрэглэгчийн жагсаалт (Dummy data)
 const users = [
   { id: 1, name: "Баттулга" },
@@ -22,7 +31,7 @@ const users = [
 
 const Chats = () => {
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]); // `Message` төрлийг ашигласан
   const [newMessage, setNewMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -38,9 +47,12 @@ const Chats = () => {
 
     // Realtime мессеж татах
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedMessages = snapshot.docs.map((doc) => ({
+      const loadedMessages: Message[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        userId: doc.data().userId,
+        sender: doc.data().sender,
+        message: doc.data().message,
+        createdAt: doc.data().createdAt?.toDate() || null,
       }));
       setMessages(loadedMessages);
     });
@@ -110,7 +122,7 @@ const Chats = () => {
 
             {/* Мессеж харуулах хэсэг */}
             <div className="h-[60vh] overflow-y-auto bg-[#333333] p-3 rounded-lg space-y-3">
-              {messages.map((msg: any) => (
+              {messages.map((msg) => (
                 <div
                   key={msg.id}
                   className={`p-3 rounded-lg ${

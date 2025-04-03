@@ -19,6 +19,13 @@ import {
 } from "lucide-react"; // Lucide-ийн icon-ыг rename хийж оруулах
 import { doc, getDoc } from "firebase/firestore";
 
+// 📌 Хэрэглэгчийн мэдээллийн интерфэйс
+interface UserInfo {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
 export default function BooksLayout({
   children,
 }: Readonly<{
@@ -26,7 +33,7 @@ export default function BooksLayout({
 }>) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [userInfo, setUserInfo] = useState<any>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
 
   const linkHref = [
     { icon: Search, href: "/search", label: "Ном Хайх" },
@@ -39,12 +46,13 @@ export default function BooksLayout({
     { icon: Files, href: "/requests", label: "Хүсэлтүүд" },
     { icon: MessageSquare, href: "/chats", label: "Чат" },
   ];
+
   // 🔄 Firestore-с хэрэглэгчийн нэмэлт мэдээллийг татах
   const fetchUserInfo = async (uid: string) => {
     const userDoc = doc(db, "users", uid);
     const userSnapshot = await getDoc(userDoc);
     if (userSnapshot.exists()) {
-      const userData = userSnapshot.data();
+      const userData = userSnapshot.data() as UserInfo; // UserInfo төрлөөр хөрвүүлэх
       setUserInfo(userData);
     }
   };
