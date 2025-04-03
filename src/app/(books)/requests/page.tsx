@@ -7,7 +7,8 @@ import { db } from "@/firebaseConfig";
 interface Request {
   id: string;
   type: "purchase" | "exchange" | "donation"; // Added donation type
-  bookTitle: string;
+  bookId: string; // bookTitle-ийг bookId болгосон
+  buyerId: string; // Buyer ID нэмсэн
   requester: string;
   status: "хүлээгдэж байна" | "баталгаажсан" | "цуцлагдсан";
   date: string;
@@ -85,8 +86,9 @@ const Requests = () => {
         <table className="w-full table-auto text-left text-sm">
           <thead className="bg-[#333333] text-gray-300">
             <tr>
-              <th className="p-3">Номын нэр</th>
+              <th className="p-3">Номын ID</th>
               <th className="p-3">Захиалагч</th>
+              <th className="p-3">Худалдан авагч ID</th>
               <th className="p-3">Огноо</th>
               <th className="p-3">Төлөв</th>
               <th className="p-3">Үйлдэл</th>
@@ -99,10 +101,13 @@ const Requests = () => {
                 className="hover:bg-[#2f2f2f] transition-colors"
               >
                 <td className="p-3 border-b border-[#2f2f2f]">
-                  {request.bookTitle}
+                  {request.bookId}
                 </td>
                 <td className="p-3 border-b border-[#2f2f2f]">
                   {request.requester}
+                </td>
+                <td className="p-3 border-b border-[#2f2f2f]">
+                  {request.buyerId}
                 </td>
                 <td className="p-3 border-b border-[#2f2f2f]">
                   {new Date(request.date).toLocaleDateString("mn-MN")}
