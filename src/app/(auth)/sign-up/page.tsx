@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
 import { query, where, collection, getDocs } from "firebase/firestore";
-
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 
@@ -15,6 +14,7 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState(""); // Хэрэглэгчийн нэр
   const [phone, setPhone] = useState(""); // Утасны дугаар
+  const [role, setRole] = useState("user"); // Хэрэглэгчийн үүрэг (default: user)
   const [error, setError] = useState("");
 
   const linkHref = [
@@ -63,10 +63,11 @@ const SignUp = () => {
         name,
         phone,
         email,
+        role, // Хэрэглэгчийн үүргийг хадгалах
       });
 
       // Амжилттай бүртгүүлсний дараа хэрэглэгчийг нэвтрэх хуудас руу шилжүүлэх
-      window.location.href = "/login";
+      window.location.href = "/tca/login";
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -173,6 +174,7 @@ const SignUp = () => {
           required
           className="w-full h-10 border border-[#4a4a4a] p-1 rounded-md focus:outline-0 focus:bg-[#191919]"
         />
+
         <p className="text-[#cf5d57]">{error}</p>
         <button
           type="submit"

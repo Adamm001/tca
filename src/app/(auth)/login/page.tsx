@@ -4,7 +4,8 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebaseConfig";
+import { auth, db } from "@/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,13 +24,32 @@ const Login = () => {
     setError("");
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/profile"); // Redirect to home page after successful login
+      // Firebase Authentication ашиглан нэвтрэх
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Firestore-оос хэрэглэгчийн мэдээллийг татах
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.role === "admin") {
+          router.push("/admin"); // Хэрэв role нь admin бол /admin руу чиглүүлэх
+        } else {
+          router.push("/profile"); // Бусад тохиолдолд /profile руу чиглүүлэх
+        }
+      } else {
+        setError("Хэрэглэгчийн мэдээлэл олдсонгүй.");
+      }
     } catch (err) {
       setError("И-мэйл, Нууц үг буруу байна.");
       console.error("Нэвтрэх алдаа:", err);
     }
   };
+
   return (
     <>
       <h1 className="text-2xl font-bold uppercase ">Нэвтрэх</h1>
