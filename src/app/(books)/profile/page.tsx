@@ -15,7 +15,6 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
-import Image from "next/image";
 import { Dot, User as UserLucide } from "lucide-react";
 
 // 📌 Номын өгөгдлийн интерфэйс

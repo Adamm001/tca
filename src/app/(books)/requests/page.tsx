@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   collection,
   getDocs,
@@ -21,12 +21,6 @@ interface Request {
   date: string;
 }
 
-// Номын өгөгдлийн интерфэйс
-interface Book {
-  id: string;
-  title: string;
-}
-
 const Requests = () => {
   const [purchaseRequests, setPurchaseRequests] = useState<Request[]>([]);
   const [exchangeRequests, setExchangeRequests] = useState<Request[]>([]);
@@ -35,42 +29,6 @@ const Requests = () => {
   const [userNames, setUserNames] = useState<Record<string, string>>({}); // Хэрэглэгчийн ID болон нэрийг хадгалах
 
   // Firestore-оос бүх хүсэлтийг татах
-  const getRequestsFromFirestore = async () => {
-    const querySnapshot = await getDocs(collection(db, "requests"));
-    const requests = querySnapshot.docs.map((doc) => ({
-      ...(doc.data() as Request),
-      id: doc.id,
-      status: doc.data().status as
-        | "хүлээгдэж байна"
-        | "баталгаажсан"
-        | "цуцлагдсан",
-    })) as Request[];
-
-    // Хүсэлтүүдийг төрөлөөр нь ялгах
-    const purchase = requests.filter((req) => req.type === "Зарах");
-    const exchange = requests.filter((req) => req.type === "Солилцох");
-    const donation = requests.filter((req) => req.type === "Хандив");
-
-    setPurchaseRequests(purchase);
-    setExchangeRequests(exchange);
-    setDonationRequests(donation);
-
-    // Номын ID болон хэрэглэгчийн ID-уудыг цуглуулах
-    const bookIds = Array.from(
-      new Set(requests.map((req) => req.bookId).filter((id) => id))
-    );
-    const userIds = Array.from(
-      new Set(
-        requests
-          .map((req) => [req.buyerId, req.userId])
-          .flat()
-          .filter((id) => id)
-      )
-    );
-
-    await fetchBookTitles(bookIds); // Номын нэрийг татах
-    await fetchUserNames(userIds); // Хэрэглэгчийн нэрийг татах
-  };
 
   // Firestore-оос номын нэрийг татах
   const fetchBookTitles = async (bookIds: string[]) => {
@@ -144,6 +102,42 @@ const Requests = () => {
       setDonationRequests(updatedRequests);
     }
   };
+  const getRequestsFromFirestore = useCallback(async () => {
+    const querySnapshot = await getDocs(collection(db, "requests"));
+    const requests = querySnapshot.docs.map((doc) => ({
+      ...(doc.data() as Request),
+      id: doc.id,
+      status: doc.data().status as
+        | "хүлээгдэж байна"
+        | "баталгаажсан"
+        | "цуцлагдсан",
+    })) as Request[];
+
+    // Хүсэлтүүдийг төрөлөөр нь ялгах
+    const purchase = requests.filter((req) => req.type === "Зарах");
+    const exchange = requests.filter((req) => req.type === "Солилцох");
+    const donation = requests.filter((req) => req.type === "Хандив");
+
+    setPurchaseRequests(purchase);
+    setExchangeRequests(exchange);
+    setDonationRequests(donation);
+
+    // Номын ID болон хэрэглэгчийн ID-уудыг цуглуулах
+    const bookIds = Array.from(
+      new Set(requests.map((req) => req.bookId).filter((id) => id))
+    );
+    const userIds = Array.from(
+      new Set(
+        requests
+          .map((req) => [req.buyerId, req.userId])
+          .flat()
+          .filter((id) => id)
+      )
+    );
+
+    await fetchBookTitles(bookIds); // Номын нэрийг татах
+    await fetchUserNames(userIds); // Хэрэглэгчийн нэрийг татах
+  }, [fetchBookTitles, fetchUserNames]);
 
   // Цуцлагдсан хүсэлтүүдийг устгах функц
   const deleteCancelledRequests = async () => {
@@ -182,6 +176,7 @@ const Requests = () => {
 
   useEffect(() => {
     getRequestsFromFirestore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Хүсэлтийн хүснэгт харуулах функц
