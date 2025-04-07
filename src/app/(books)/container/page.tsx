@@ -13,6 +13,7 @@ interface Book {
   condition: "шинэ" | "хэрэглэсэн" | "хуучин";
   imageUrl?: string;
   status: string;
+  userId: string; // Хэрэглэгчийн ID-г хадгалах
 }
 
 // Firestore-с ном унших функц
@@ -64,10 +65,10 @@ const Container = () => {
       await addDoc(collection(db, "requests"), {
         bookId: selectedBook.id,
         buyerId: currentUserId, // Одоогийн хэрэглэгчийн ID-г buyerId болгон хадгалах
-        requester: "Хэрэглэгчийн нэр", // Хэрэглэгчийн нэрийг энд оруулна
+        userId: selectedBook.userId, // Номын эзний ID-г хадгалах
         status: "хүлээгдэж байна",
         date: new Date().toISOString(),
-        type: "purchase",
+        type: "Зарах", // Хүсэлтийн төрөл
       });
       alert("Хүсэлт амжилттай илгээгдлээ!");
       handleCloseModal(); // Modal-ийг хаах
@@ -96,7 +97,8 @@ const Container = () => {
         <div className="w-full gap-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {books.map(
             (book) =>
-              book.status === "Зарах" && (
+              book.status === "Зарах" &&
+              book.userId !== currentUserId && (
                 <BookCard
                   key={book.id}
                   title={book.title}

@@ -47,9 +47,8 @@ const BookCard: React.FC<BookCardProps> = ({
         <div className="flex justify-between items-center">
           <p className="text-base font-medium text-[#659c75]">
             {price !== undefined && price !== null
-              ? price.toLocaleString()
+              ? `${price.toLocaleString()} ₮`
               : "Үнэ байхгүй"}
-            ₮
           </p>
           <span
             className={`text-xs px-2 py-1 rounded-md ${

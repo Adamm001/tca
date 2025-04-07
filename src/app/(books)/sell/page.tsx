@@ -16,7 +16,7 @@ interface Book {
   status: string;
   imageUrl: string;
   createdAt?: Date; // Optional createdAt property
-  email?: string; // Optional email property
+  userId?: string; // Optional userId property
 }
 
 const Sell = () => {
@@ -98,12 +98,12 @@ const Sell = () => {
       return;
     }
 
-    // Create a new book object with email and other details
+    // Create a new book object with user ID and other details
     const newBook: Book = {
       ...book,
       imageUrl: uploadedImageUrl,
       createdAt: new Date(),
-      email: currentUser?.email || "", // Add current user's email
+      userId: currentUser?.uid || "", // Save user ID instead of userId
     };
 
     // Save the book to Firestore
@@ -125,7 +125,14 @@ const Sell = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center overflow-y-auto text-white p-4 bg-[#1a1a1a]">
+    <div
+      className="w-full h-screen flex flex-col items-center overflow-y-auto text-white p-4 bg-[#1a1a1a]
+                [&::-webkit-scrollbar]:w-2 
+                [&::-webkit-scrollbar-track]:bg-white
+                [&::-webkit-scrollbar-thumb]:bg-black
+                [&::-webkit-scrollbar-track]:rounded-full
+                [&::-webkit-scrollbar-thumb]:rounded-full"
+    >
       <h1 className="text-3xl font-bold mb-4">Ном нэмэх</h1>
 
       <form
@@ -168,10 +175,12 @@ const Sell = () => {
             required
           >
             <option value="">Сонгох</option>
-            <option value="science">Science</option>
-            <option value="literature">Literature</option>
-            <option value="technology">Technology</option>
-            <option value="history">History</option>
+            <option value="Шинжлэх ухаан">Шинжлэх ухаан</option>
+            <option value="Технологи">Технологи</option>
+            <option value="Түүх">Түүх</option>
+            <option value="Уран зохиол">Уран зохиол</option>
+            <option value="Соёл, урлаг">Соёл, урлаг</option>
+            <option value="Бизнес, эдийн засаг">Бизнес, эдийн засаг</option>
           </select>
         </div>
 
@@ -244,7 +253,7 @@ const Sell = () => {
               width={1000}
               src={previewUrl}
               alt="Preview Image"
-              className="w-40 h-40 rounded-lg border border-[#4a4a4a] shadow-md"
+              className="w-40 h-40 rounded-lg border border-[#4a4a4а] shadow-md"
             />
           </div>
         )}
