@@ -13,7 +13,8 @@ interface Book {
   condition: "шинэ" | "хэрэглэсэн" | "хуучин";
   imageUrl?: string;
   status: string;
-  userId: string; // Хэрэглэгчийн ID-г хадгалах
+  userId: string;
+  category: string; // Хэрэглэгчийн ID-г хадгалах
 }
 
 // Firestore-с ном унших функц
@@ -124,20 +125,23 @@ const Container = () => {
       {isModalOpen && selectedBook && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-[#252525] p-6 rounded-lg w-96 text-white">
-            <h2 className="text-2xl font-bold mb-4">{selectedBook.title}</h2>
-            <p className="mb-2">
+            <h2 className="text-3xl font-bold mb-4 uppercase">
+              {selectedBook.title}
+            </h2>
+            <p className="ml-4 mb-2 bg-[#]">
               <strong>Зохиолч:</strong> {selectedBook.author}
             </p>
-            <p className="mb-2">
-              <strong>Үнэ:</strong> {selectedBook.price.toLocaleString()}₮
+            <p className="ml-4 mb-2">
+              <strong>Төрөл:</strong> {selectedBook.category}
             </p>
-            <p className="mb-2">
-              <strong>Нөхцөл:</strong> {selectedBook.condition}
-            </p>
-            <p className="mb-4">
+            <p className="ml-4 mb-2">
               <strong>Төлөв:</strong> {selectedBook.status}
             </p>
-            <div className="flex justify-end gap-3">
+            <p className="ml-4 mb-2 uppercase font-bold text-xl text-green-600">
+              {selectedBook.condition}
+            </p>
+
+            <div className="flex justify-end gap-3 w-full">
               <button
                 onClick={handleCloseModal}
                 className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500"
@@ -148,7 +152,7 @@ const Container = () => {
                 onClick={handleSendRequest}
                 className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
               >
-                Авах хүсэлт илгээх
+                Хүсэлт илгээх
               </button>
             </div>
           </div>
