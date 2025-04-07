@@ -5,6 +5,7 @@ import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { db, auth } from "@/firebaseConfig";
 import { useRouter } from "next/navigation";
+import Image from "next/image"; // next/image-ийг импортлох
 
 interface Book {
   id: string;
@@ -29,11 +30,13 @@ const AdminBookCard: React.FC<{
 }> = ({ book, onDelete }) => {
   return (
     <div className="bg-[#252525] p-6 rounded-lg border border-[#4a4a4a] w-full flex flex-col items-center">
-      {/* Номны зураг */}
-      <img
+      {/* Зургийг next/image ашиглан харуулах */}
+      <Image
         src={book.imageUrl}
         alt={book.title}
-        className="w-32 h-40 object-cover rounded-md mb-4"
+        width={128} // Зургийн өргөн
+        height={160} // Зургийн өндөр
+        className="object-cover rounded-md mb-4"
       />
       <h2 className="text-xl font-semibold">{book.title}</h2>
       <p className="mt-2">Зохиолч: {book.author}</p>
@@ -134,7 +137,7 @@ const Admin = () => {
 
   return (
     <div className="p-5 w-full text-white flex flex-col items-center min-h-screen">
-      <div className="bg-[#252525] p-6 rounded-lg border border-[#4a4a4a] w-full text-center">
+      <div className="bg-[#252525] p-6 rounded-lg border border-[#4a4a4а] w-full text-center">
         <h1 className="text-2xl font-bold">Админы хэсэг</h1>
         <p className="mt-4">Ном болон хэрэглэгчидийг удирдах</p>
         <button

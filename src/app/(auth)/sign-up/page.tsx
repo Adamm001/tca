@@ -14,7 +14,7 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState(""); // Хэрэглэгчийн нэр
   const [phone, setPhone] = useState(""); // Утасны дугаар
-  const [role, setRole] = useState("user"); // Хэрэглэгчийн үүрэг (default: user)
+  const role = "user"; // Хэрэглэгчийн үүрэг (default: user)
   const [error, setError] = useState("");
 
   const linkHref = [

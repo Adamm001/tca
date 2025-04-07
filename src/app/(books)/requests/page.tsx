@@ -31,38 +31,44 @@ const Requests = () => {
   // Firestore-оос бүх хүсэлтийг татах
 
   // Firestore-оос номын нэрийг татах
-  const fetchBookTitles = async (bookIds: string[]) => {
-    const titles: Record<string, string> = {};
+  const fetchBookTitles = useCallback(
+    async (bookIds: string[]) => {
+      const titles: Record<string, string> = {};
 
-    const promises = bookIds.map(async (bookId) => {
-      const bookDoc = await getDoc(doc(db, "books", bookId));
-      if (bookDoc.exists()) {
-        titles[bookId] = bookDoc.data().title;
-      } else {
-        titles[bookId] = "Нэр олдсонгүй";
-      }
-    });
+      const promises = bookIds.map(async (bookId) => {
+        const bookDoc = await getDoc(doc(db, "books", bookId));
+        if (bookDoc.exists()) {
+          titles[bookId] = bookDoc.data().title;
+        } else {
+          titles[bookId] = "Нэр олдсонгүй";
+        }
+      });
 
-    await Promise.all(promises);
-    setBookTitles(titles);
-  };
+      await Promise.all(promises);
+      setBookTitles(titles);
+    },
+    [db]
+  );
 
   // Firestore-оос хэрэглэгчийн нэрийг татах
-  const fetchUserNames = async (userIds: string[]) => {
-    const names: Record<string, string> = {};
+  const fetchUserNames = useCallback(
+    async (userIds: string[]) => {
+      const names: Record<string, string> = {};
 
-    const promises = userIds.map(async (userId) => {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        names[userId] = userDoc.data().name;
-      } else {
-        names[userId] = "Нэр олдсонгүй";
-      }
-    });
+      const promises = userIds.map(async (userId) => {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+          names[userId] = userDoc.data().name;
+        } else {
+          names[userId] = "Нэр олдсонгүй";
+        }
+      });
 
-    await Promise.all(promises);
-    setUserNames(names);
-  };
+      await Promise.all(promises);
+      setUserNames(names);
+    },
+    [db]
+  );
 
   const currentUserId = auth.currentUser?.uid;
   // Захиалгын төлөв өөрчлөх функц
@@ -137,7 +143,7 @@ const Requests = () => {
 
     await fetchBookTitles(bookIds); // Номын нэрийг татах
     await fetchUserNames(userIds); // Хэрэглэгчийн нэрийг татах
-  }, [fetchBookTitles, fetchUserNames]);
+  }, [db, fetchBookTitles, fetchUserNames]);
 
   // Цуцлагдсан хүсэлтүүдийг устгах функц
   const deleteCancelledRequests = async () => {

@@ -4,7 +4,7 @@ export default function BooksLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex-1 min-h-screen flex flex-col items-center justify-between">
+    <div className="flex-1 min-h-screen flex flex-col items-center justify-start gap-10">
       <header className="w-full bg-[#202020] h-20 flex items-center justify-center border-b-1 border-[#2b2b2b] shadow-md ">
         <h1 className="text-white text-5xl font-bold ">NOMZO</h1>
       </header>
