@@ -12,7 +12,6 @@ interface Book {
   author: string;
   category: string;
   price: string;
-  condition: string;
   status: string;
   imageUrl: string;
   createdAt?: Date; // Optional createdAt property
@@ -25,7 +24,6 @@ const Sell = () => {
     author: "",
     category: "",
     price: "",
-    condition: "",
     status: "Зарах", // Default value
     imageUrl: "", // New image placeholder
   });
@@ -116,7 +114,6 @@ const Sell = () => {
       author: "",
       category: "",
       price: "",
-      condition: "",
       status: "Зарах",
       imageUrl: "",
     });
@@ -180,23 +177,8 @@ const Sell = () => {
             <option value="Түүх">Түүх</option>
             <option value="Уран зохиол">Уран зохиол</option>
             <option value="Соёл, урлаг">Соёл, урлаг</option>
+            <option value="Намтар">Намтар</option>
             <option value="Бизнес, эдийн засаг">Бизнес, эдийн засаг</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-gray-300">Шинэ, Хуучин эсэх</label>
-          <select
-            name="condition"
-            value={book.condition}
-            onChange={handleChange}
-            className="w-full p-2 border h-10 border-[#4a4a4a] bg-[#1a1a1a] text-white rounded focus:outline-0"
-            required
-          >
-            <option value="">Сонгох</option>
-            <option value="шинэ">Шинэ</option>
-            <option value="хэрэглэсэн">хэрэглэсэн</option>
-            <option value="хуучин">Хуучин</option>
           </select>
         </div>
 

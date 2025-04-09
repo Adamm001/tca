@@ -7,7 +7,6 @@ interface BookCardProps {
   title: string;
   author: string;
   price?: number; // Nullable болгож тохируулсан
-  condition: "шинэ" | "хэрэглэсэн" | "хуучин";
   imageUrl: string;
   onClick?: () => void;
 }
@@ -16,7 +15,6 @@ const BookCard: React.FC<BookCardProps> = ({
   title,
   author,
   price,
-  condition,
   imageUrl,
   onClick,
 }) => {
@@ -50,17 +48,6 @@ const BookCard: React.FC<BookCardProps> = ({
               ? `${price.toLocaleString()} ₮`
               : "Үнэ байхгүй"}
           </p>
-          <span
-            className={`text-xs px-2 py-1 rounded-md ${
-              condition === "шинэ"
-                ? "bg-[#2a3c31] text-white"
-                : condition === "хэрэглэсэн"
-                ? "bg-[#53442c] text-white"
-                : "bg-[#4d302b] text-white"
-            }`}
-          >
-            {condition}
-          </span>
         </div>
 
         {/* Дэлгэрэнгүй товч */}

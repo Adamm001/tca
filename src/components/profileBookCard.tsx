@@ -10,7 +10,6 @@ interface ProfileBookCardProps {
   title: string;
   author: string;
   price: number;
-  condition: "шинэ" | "хэрэглэсэн" | "хуучин";
   imageUrl: string;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
@@ -21,7 +20,6 @@ const ProfileBookCard: React.FC<ProfileBookCardProps> = ({
   title,
   author,
   price,
-  condition,
   imageUrl,
   onEdit,
   onDelete,
@@ -104,17 +102,6 @@ const ProfileBookCard: React.FC<ProfileBookCardProps> = ({
             <p className="text-base font-medium text-green-400">
               {price.toLocaleString()}₮
             </p>
-            <span
-              className={`text-xs px-2 py-1 rounded-md ${
-                condition === "шинэ"
-                  ? "bg-[#2a3c31] text-white"
-                  : condition === "хэрэглэсэн"
-                  ? "bg-[#53442c] text-white"
-                  : "bg-[#4d302b] text-white"
-              }`}
-            >
-              {condition}
-            </span>
           </div>
 
           {/* Засах, Устгах товч */}

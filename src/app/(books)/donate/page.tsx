@@ -10,7 +10,6 @@ interface Book {
   title: string;
   author: string;
   price: number;
-  condition: "шинэ" | "хэрэглэсэн" | "хуучин";
   imageUrl?: string;
   status: string;
   userId: string;
@@ -112,7 +111,6 @@ const Container = () => {
                   title={book.title}
                   author={book.author}
                   price={book.price}
-                  condition={book.condition as "шинэ" | "хэрэглэсэн" | "хуучин"}
                   imageUrl={book.imageUrl || "/images/book-placeholder.png"}
                   onClick={() => handleViewDetails(book)}
                 />
@@ -136,9 +134,6 @@ const Container = () => {
             </p>
             <p className="ml-4 mb-2">
               <strong>Төлөв:</strong> {selectedBook.status}
-            </p>
-            <p className="ml-4 mb-2 uppercase font-bold text-xl text-green-600">
-              {selectedBook.condition}
             </p>
 
             <div className="flex justify-end gap-3 w-full">

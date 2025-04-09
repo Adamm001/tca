@@ -23,7 +23,6 @@ interface Book {
   title: string;
   author: string;
   price: number;
-  condition: "шинэ" | "хэрэглэсэн" | "хуучин";
   imageUrl?: string;
 }
 
@@ -310,7 +309,6 @@ const Profile = () => {
                 title={book.title}
                 author={book.author}
                 price={book.price}
-                condition={book.condition}
                 imageUrl={book.imageUrl || "/images/book.png"}
                 onEdit={() => handleEditBook(book.id)}
                 onDelete={() => handleDeleteBook(book.id, book.imageUrl || "")}
