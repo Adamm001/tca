@@ -5,10 +5,10 @@ import {
   getDocs,
   query,
   where,
-  Query,
   QueryConstraint,
+  addDoc,
 } from "firebase/firestore";
-import { db } from "@/firebaseConfig";
+import { db, auth } from "@/firebaseConfig";
 
 // 📚 Номын өгөгдлийн төрлийг тодорхойлох
 interface Book {
@@ -17,6 +17,7 @@ interface Book {
   author: string;
   category: string;
   price: number;
+  status: string;
 }
 
 // 📚 Ном хайх функц (Firestore-с хайлт хийх)
@@ -27,10 +28,8 @@ const searchBooksInFirestore = async (queryParams: {
   minPrice?: string;
   maxPrice?: string;
 }): Promise<Book[]> => {
-  // Шүүлтүүдийг хадгалах массив
   const filters: QueryConstraint[] = [];
 
-  // 📌 Шүүлтүүр нэмэх
   if (queryParams.title) {
     filters.push(
       where("title", ">=", queryParams.title),
@@ -46,7 +45,6 @@ const searchBooksInFirestore = async (queryParams: {
     filters.push(where("category", "==", queryParams.category));
   }
 
-  // Үнэ шүүлтүүр
   if (queryParams.minPrice) {
     filters.push(where("price", ">=", Number(queryParams.minPrice)));
   }
@@ -54,22 +52,17 @@ const searchBooksInFirestore = async (queryParams: {
     filters.push(where("price", "<=", Number(queryParams.maxPrice)));
   }
 
-  // ✅ Зөв query-г үүсгэх
-  let q: Query;
-  if (filters.length > 0) {
-    q = query(collection(db, "books"), ...filters);
-  } else {
-    q = query(collection(db, "books"));
-  }
+  const q =
+    filters.length > 0
+      ? query(collection(db, "books"), ...filters)
+      : query(collection(db, "books"));
 
   try {
     const querySnapshot = await getDocs(q);
-    const books: Book[] = querySnapshot.docs.map((doc) => ({
+    return querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...(doc.data() as Omit<Book, "id">),
     }));
-    console.log("Хайлтын үр дүн:", books);
-    return books;
   } catch (error) {
     console.error("Хайлт хийхэд алдаа гарлаа:", error);
     return [];
@@ -94,29 +87,45 @@ const Search = () => {
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [noResults, setNoResults] = useState(false);
 
-  // 📚 Input утгыг өөрчлөх үед ажиллах функц
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setQuery({ ...query, [e.target.name]: e.target.value });
   };
 
-  // 🔎 Хайлтын үйлдэл хийх үед
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log("Хайлтын утгууд:", query);
-
-    // Firestore-оос хайлтын үр дүнг татах
     const results = await searchBooksInFirestore(query);
 
-    // 🔍 Хайлтын үр дүнг шалгах
     if (results.length === 0) {
       setNoResults(true);
       setSearchResults([]);
     } else {
       setNoResults(false);
       setSearchResults(results);
+    }
+  };
+
+  const handleSendRequest = async (bookId: string, status: string) => {
+    const currentUserId = auth.currentUser?.uid;
+
+    if (!currentUserId) {
+      alert("Та эхлээд нэвтэрнэ үү!");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "requests"), {
+        bookId,
+        buyerId: currentUserId,
+        status: "хүлээгдэж байна",
+        date: new Date().toISOString(),
+        type: status,
+      });
+      alert("Хүсэлт амжилттай илгээгдлээ!");
+    } catch (error) {
+      console.error("Хүсэлт илгээхэд алдаа гарлаа:", error);
+      alert("Хүсэлт илгээхэд алдаа гарлаа!");
     }
   };
 
@@ -128,7 +137,6 @@ const Search = () => {
         className="p-4 rounded-lg border border-[#4a4a4a] w-full max-w-3/5 space-y-4 bg-[#252525]"
       >
         <div className="w-full flex gap-5">
-          {/* Номын нэр */}
           <div className="flex-1">
             <label className="block text-gray-300">Номын нэр</label>
             <input
@@ -141,7 +149,6 @@ const Search = () => {
             />
           </div>
 
-          {/* Зохиолчийн нэр */}
           <div className="flex-1">
             <label className="block text-gray-300">Зохиолчийн нэр</label>
             <input
@@ -156,7 +163,6 @@ const Search = () => {
         </div>
 
         <div className="w-full flex gap-5 items-end">
-          {/* Номын төрөл */}
           <div className="flex-1">
             <label className="block text-gray-300">Номын төрөл</label>
             <select
@@ -173,7 +179,6 @@ const Search = () => {
             </select>
           </div>
 
-          {/* Доод үнэ */}
           <div className="flex-1">
             <label className="block text-gray-300">Доод үнэ (₮)</label>
             <input
@@ -186,7 +191,6 @@ const Search = () => {
             />
           </div>
 
-          {/* Дээд үнэ */}
           <div className="flex-1">
             <label className="block text-gray-300">Дээд үнэ (₮)</label>
             <input
@@ -208,7 +212,6 @@ const Search = () => {
         </div>
       </form>
 
-      {/* 📚 Хайлтын үр дүнгийн хэсэг */}
       <div className="mt-8 w-full max-w-3/5">
         <h2 className="text-2xl font-bold mb-4">🔍 Хайлтын үр дүн:</h2>
         {noResults ? (
@@ -224,9 +227,24 @@ const Search = () => {
               >
                 <h3 className="text-xl font-bold">{result.title}</h3>
                 <p className="text-gray-400">Зохиолч: {result.author}</p>
+                <p className="text-gray-400">Төрөл: {result.category}</p>
                 <p className="text-gray-400">
                   Үнэ: {result.price.toLocaleString()}₮
                 </p>
+                <p className="text-gray-400">
+                  Төлөв:{" "}
+                  {result.status === "Зарах"
+                    ? "Зарах"
+                    : result.status === "Солих"
+                    ? "Солих"
+                    : "Хандивлах"}
+                </p>
+                <button
+                  onClick={() => handleSendRequest(result.id, result.status)}
+                  className="mt-4 bg-[#4281db] text-white py-2 px-4 rounded-lg hover:bg-[#3375cd] active:bg-[#0e69c3]"
+                >
+                  Худалдаж авах хүсэлт илгээх
+                </button>
               </div>
             ))}
           </div>

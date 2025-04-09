@@ -175,6 +175,7 @@ const Sell = () => {
             <option value="Шинжлэх ухаан">Шинжлэх ухаан</option>
             <option value="Технологи">Технологи</option>
             <option value="Түүх">Түүх</option>
+            <option value="Хувь хүний хөгжил">Хувь хүний хөгжил</option>
             <option value="Уран зохиол">Уран зохиол</option>
             <option value="Соёл, урлаг">Соёл, урлаг</option>
             <option value="Намтар">Намтар</option>
