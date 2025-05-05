@@ -240,7 +240,7 @@ const Profile = () => {
               <h3 className="text-lg font-semibold h-1/5 ">Миний хүсэлтүүд</h3>
 
               {myRequests.length === 0 ? (
-                <p className="text-gray-400 h-4/5  bg-gray-600 rounded-lg p-2">
+                <p className="text-gray-400 h-4/5  bg-[#252525]  rounded-lg p-2">
                   Таны гаргасан хүсэлт алга байна.
                 </p>
               ) : (

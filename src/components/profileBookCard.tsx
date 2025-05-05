@@ -50,7 +50,7 @@ const ProfileBookCard: React.FC<ProfileBookCardProps> = ({
   };
 
   return (
-    <div className="bg-[#262626] W-60 rounded-lg p-4 flex flex-col border border-[#323232] shadow-md hover:scale-105 transition-transform duration-200 ease-in-out hover:-translate-y-2 cursor-pointer">
+    <div className="bg-[#262626] W-60 rounded-lg p-4 flex flex-col justify-between border border-[#323232] shadow-md hover:scale-105 transition-transform duration-200 ease-in-out hover:-translate-y-2 cursor-pointer">
       {/* Номын зураг */}
       <div className="w-full aspect-square relative mb-3">
         <Image

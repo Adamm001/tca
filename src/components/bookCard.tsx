@@ -20,11 +20,11 @@ const BookCard: React.FC<BookCardProps> = ({
 }) => {
   return (
     <div
-      className="bg-[#262626] rounded-lg p-4 flex flex-col border border-[#2f2f2f] shadow-lg cursor-pointer hover:scale-105 transition-transform duration-200 ease-in-out hover:-translate-y-2 hover:bg-[#333333]"
+      className="bg-[#262626] rounded-lg p-4 flex flex-col border border-[#2f2f2f] shadow-lg cursor-pointer hover:scale-105 transition-transform duration-200 ease-in-out hover:-translate-y-2 hover:bg-[#333333] "
       onClick={onClick}
     >
       {/* Номын зураг */}
-      <div className="w-full aspect-square relative">
+      <div className="w-full aspect-square relative ">
         <Image
           src={imageUrl || "/images/book.png"}
           alt={title || "Номын зураг"} // ✅ Alt утга оноох

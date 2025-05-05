@@ -8,16 +8,16 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   LibraryBig,
-  Plus,
+  UserRoundSearch,
   ArrowLeftRight,
   LogOut,
   User as LucideUser,
-  Files,
-  MessageSquare,
   Search,
   Banknote,
   Settings,
-  ShoppingCart,
+  Users,
+  ShieldUser,
+  MessageCircle,
 } from "lucide-react"; // Lucide-ийн icon-ыг rename хийж оруулах
 import { doc, getDoc } from "firebase/firestore";
 
@@ -28,7 +28,7 @@ interface UserInfo {
   phone?: string;
 }
 
-export default function BooksLayout({
+export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -38,16 +38,22 @@ export default function BooksLayout({
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
 
   const linkHref = [
-    { icon: Search, href: "/search", label: "Ном Хайх" },
-    { icon: LibraryBig, href: "/container", label: "Зарах Номнууд" },
-    { icon: ArrowLeftRight, href: "/exchange", label: "Солилцох Номнууд" },
-    { icon: Banknote, href: "/donate", label: "Хандивын Номнууд" },
+    { icon: Search, href: "searchBooks", label: "Ном Хайх" },
+    { icon: LibraryBig, href: "adminSellBooks", label: "Зарах Номнууд" },
+    {
+      icon: ArrowLeftRight,
+      href: "adminExchangeBooks",
+      label: "Солилцох Номнууд",
+    },
+    { icon: Banknote, href: "adminDonateBooks", label: "Хандивын Номнууд" },
   ];
   const functionLinkHref = [
-    { icon: Plus, href: "/sell", label: "Ном Нэмэх" },
-    { icon: Files, href: "/requests", label: "Хүсэлтүүд" },
-    { icon: ShoppingCart, href: "/store", label: "Захиалга" },
-    { icon: MessageSquare, href: "/chats", label: "Чат" },
+    {
+      icon: UserRoundSearch,
+      href: "adminSearchUsers",
+      label: "Хэрэглэгч хайх",
+    },
+    { icon: Users, href: "adminUsers", label: "Хэрэглэгчид" },
   ];
 
   // 🔄 Firestore-с хэрэглэгчийн нэмэлт мэдээллийг татах
@@ -86,30 +92,31 @@ export default function BooksLayout({
       <header className="h-screen bg-[#202020] w-1/7 p-3 flex flex-col border-r border-[#2b2b2b] shadow-lg justify-between">
         <div className="flex flex-col gap-3">
           {/* Лого */}
-          <Image
-            src="/logo/Logo.png"
-            alt="logo"
-            height={1000}
-            width={1000}
-            className="w-6 h-6"
-          />
+          <div className="flex items-center gap-5">
+            <Image
+              src="/logo/Logo.png"
+              alt="logo"
+              height={1000}
+              width={1000}
+              className="w-6 h-6"
+            />
+            <p className="text-[#9b9b9b] font-semibold text-lg uppercase">
+              Admin
+            </p>
+          </div>
           {/* Хувийн мэдээлэл */}
           <div className="flex flex-col gap-1">
-            <Link
-              href={"/profile"}
-              className="w-full h-8 p-1 flex items-center gap-3 my-2 hover:bg-[#2c2c2c] rounded-lg transition ease-in-out duration-200"
-            >
+            <div className="w-full h-8 p-1 flex items-center gap-3 my-2 hover:bg-[#2c2c2c] rounded-lg transition ease-in-out duration-200">
               <div className="w-6 h-6 bg-black rounded-md flex items-center justify-center">
                 <LucideUser className="text-[#ffffff]" />
               </div>
 
-              {user && userInfo && (
-                <p className="text-lg text-[#d5d5d5] font-semibold truncate">
-                  {userInfo.name ? userInfo.name : user.email}
-                </p>
-              )}
-            </Link>
+              <p className="text-lg text-[#d5d5d5] font-semibold truncate">
+                Админ
+              </p>
+            </div>
             {/* Үндсэн холбоосууд */}
+            <p className="text-[#9b9b9b]">Номнууд</p>
             {linkHref.map((link, index) => (
               <Link
                 key={index}
@@ -124,7 +131,7 @@ export default function BooksLayout({
 
           {/* Функц холбоосууд */}
           <div className="flex flex-col gap-1 w-full">
-            <p className="text-[#9b9b9b]">Функц</p>
+            <p className="text-[#9b9b9b]">Хэрэглэгч</p>
             {functionLinkHref.map((link, index) => (
               <Link
                 key={index}
@@ -135,6 +142,26 @@ export default function BooksLayout({
                 <p className="text-lg text-[#9b9b9b] truncate">{link.label}</p>
               </Link>
             ))}
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p className="text-[#9b9b9b]">Админууд</p>
+            <Link
+              href="/admins"
+              className="w-full h-8 p-2 flex items-center gap-3 hover:bg-[#2c2c2c] rounded-lg transition ease-in-out duration-200"
+            >
+              <ShieldUser className="w-5 h-5 text-[#9b9b9b]" />
+              <p className="text-lg text-[#9b9b9b] truncate">Админууд</p>
+            </Link>
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p className="text-[#9b9b9b]">Функц</p>
+            <Link
+              href="#"
+              className="w-full h-8 p-2 flex items-center gap-3 hover:bg-[#2c2c2c] rounded-lg transition ease-in-out duration-200"
+            >
+              <MessageCircle className="w-5 h-5 text-[#9b9b9b]" />
+              <p className="text-lg text-[#9b9b9b] truncate">Чат</p>
+            </Link>
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full">
@@ -161,7 +188,7 @@ export default function BooksLayout({
       </header>
 
       {/* Main хэсэг - Scroll нэмэгдсэн */}
-      <main className="text-white p-3 w-6/7 fixed min-h-screen top-0 right-0 flex flex-col gap-10 items-center overflow-y-auto scrollbar-thin scrollbar-thumb-[#2f2f2f] scrollbar-track-[#1a1a1a] bg-[#1a1a1a]">
+      <main className="text-white p-3 w-6/7 fixed h-screen top-0 right-0 flex flex-col gap-10 items-center overflow-y-auto scrollbar-thin scrollbar-thumb-[#2f2f2f] scrollbar-track-[#1a1a1a] bg-[#1a1a1a]">
         {children}
       </main>
     </div>

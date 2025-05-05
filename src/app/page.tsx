@@ -25,12 +25,6 @@ const Home = () => {
         >
           Forgot Password
         </Link>
-        <Link
-          className="h-10 w-60 rounded-lg bg-[#212121] hover:bg-[#1b1b1b] cursor-pointer flex items-center justify-center text-lg"
-          href="/container"
-        >
-          home
-        </Link>
       </div>
     </div>
   );

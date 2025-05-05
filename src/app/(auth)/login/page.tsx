@@ -37,7 +37,7 @@ const Login = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if (userData.role === "admin") {
-          router.push("/admin"); // Хэрэв role нь admin бол /admin руу чиглүүлэх
+          router.push("/adminSellBooks"); // Хэрэв role нь admin бол /admin руу чиглүүлэх
         } else {
           router.push("/profile"); // Бусад тохиолдолд /profile руу чиглүүлэх
         }

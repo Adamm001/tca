@@ -28,8 +28,6 @@ const Requests = () => {
   const [bookTitles, setBookTitles] = useState<Record<string, string>>({});
   const [userNames, setUserNames] = useState<Record<string, string>>({}); // Хэрэглэгчийн ID болон нэрийг хадгалах
 
-  // Firestore-оос бүх хүсэлтийг татах
-
   // Firestore-оос номын нэрийг татах
   const fetchBookTitles = useCallback(
     async (bookIds: string[]) => {
@@ -71,43 +69,8 @@ const Requests = () => {
   );
 
   const currentUserId = auth.currentUser?.uid;
-  // Захиалгын төлөв өөрчлөх функц
-  const handleUpdateStatus = async (
-    id: string,
-    newStatus: "хүлээгдэж байна" | "баталгаажсан" | "цуцлагдсан",
-    type: "Зарах" | "Солилцох" | "Хандив"
-  ) => {
-    const requestRef = doc(db, "requests", id);
-    await updateDoc(requestRef, { status: newStatus });
 
-    if (!currentUserId) {
-      console.error("Хэрэглэгчийн ID олдсонгүй!");
-      return;
-    }
-
-    if (type === "Зарах") {
-      const updatedRequests = purchaseRequests.map((req) =>
-        req.id === id && req.userId === currentUserId
-          ? { ...req, status: newStatus }
-          : req
-      );
-      setPurchaseRequests(updatedRequests);
-    } else if (type === "Солилцох") {
-      const updatedRequests = exchangeRequests.map((req) =>
-        req.id === id && req.userId === currentUserId
-          ? { ...req, status: newStatus }
-          : req
-      );
-      setExchangeRequests(updatedRequests);
-    } else if (type === "Хандив") {
-      const updatedRequests = donationRequests.map((req) =>
-        req.id === id && req.userId === currentUserId
-          ? { ...req, status: newStatus }
-          : req
-      );
-      setDonationRequests(updatedRequests);
-    }
-  };
+  // Firestore-оос зөвхөн "хүлээгдэж байгаа" хүсэлтүүдийг татах
   const getRequestsFromFirestore = useCallback(async () => {
     const querySnapshot = await getDocs(collection(db, "requests"));
     const requests = querySnapshot.docs.map((doc) => ({
@@ -119,10 +82,15 @@ const Requests = () => {
         | "цуцлагдсан",
     })) as Request[];
 
+    // Зөвхөн хүлээгдэж байгаа хүсэлтүүдийг шүүх
+    const pendingRequests = requests.filter(
+      (req) => req.status === "хүлээгдэж байна"
+    );
+
     // Хүсэлтүүдийг төрөлөөр нь ялгах
-    const purchase = requests.filter((req) => req.type === "Зарах");
-    const exchange = requests.filter((req) => req.type === "Солилцох");
-    const donation = requests.filter((req) => req.type === "Хандив");
+    const purchase = pendingRequests.filter((req) => req.type === "Зарах");
+    const exchange = pendingRequests.filter((req) => req.type === "Солилцох");
+    const donation = pendingRequests.filter((req) => req.type === "Хандив");
 
     setPurchaseRequests(purchase);
     setExchangeRequests(exchange);
@@ -130,11 +98,11 @@ const Requests = () => {
 
     // Номын ID болон хэрэглэгчийн ID-уудыг цуглуулах
     const bookIds = Array.from(
-      new Set(requests.map((req) => req.bookId).filter((id) => id))
+      new Set(pendingRequests.map((req) => req.bookId).filter((id) => id))
     );
     const userIds = Array.from(
       new Set(
-        requests
+        pendingRequests
           .map((req) => [req.buyerId, req.userId])
           .flat()
           .filter((id) => id)
@@ -145,45 +113,32 @@ const Requests = () => {
     await fetchUserNames(userIds); // Хэрэглэгчийн нэрийг татах
   }, [db, fetchBookTitles, fetchUserNames]);
 
-  // Цуцлагдсан хүсэлтүүдийг устгах функц
-  const deleteCancelledRequests = async () => {
-    try {
-      const allRequests = [
-        ...purchaseRequests,
-        ...exchangeRequests,
-        ...donationRequests,
-      ];
-      const cancelledRequests = allRequests.filter(
-        (req) => req.status === "цуцлагдсан" && req.userId === currentUserId
-      );
-
-      const deletePromises = cancelledRequests.map((req) =>
-        deleteDoc(doc(db, "requests", req.id))
-      );
-
-      await Promise.all(deletePromises);
-
-      // Цуцлагдсан хүсэлтүүдийг UI-аас хасах
-      setPurchaseRequests((prev) =>
-        prev.filter((req) => req.status !== "цуцлагдсан")
-      );
-      setExchangeRequests((prev) =>
-        prev.filter((req) => req.status !== "цуцлагдсан")
-      );
-      setDonationRequests((prev) =>
-        prev.filter((req) => req.status !== "цуцлагдсан")
-      );
-
-      alert("Цуцлагдсан хүсэлтүүд амжилттай устгагдлаа!");
-    } catch (error) {
-      console.error("Цуцлагдсан хүсэлтүүдийг устгахад алдаа гарлаа:", error);
-    }
-  };
-
   useEffect(() => {
     getRequestsFromFirestore();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getRequestsFromFirestore]);
+
+  const handleUpdateStatus = async (
+    id: string,
+    newStatus: "хүлээгдэж байна" | "баталгаажсан" | "цуцлагдсан",
+    type: "Зарах" | "Солилцох" | "Хандив"
+  ) => {
+    const requestRef = doc(db, "requests", id);
+    await updateDoc(requestRef, { status: newStatus });
+
+    if (type === "Зарах") {
+      setPurchaseRequests((prev) =>
+        prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
+      );
+    } else if (type === "Солилцох") {
+      setExchangeRequests((prev) =>
+        prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
+      );
+    } else if (type === "Хандив") {
+      setDonationRequests((prev) =>
+        prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
+      );
+    }
+  };
 
   // Хүсэлтийн хүснэгт харуулах функц
   const renderRequestsTable = (
@@ -208,68 +163,65 @@ const Requests = () => {
             </tr>
           </thead>
           <tbody>
-            {requests.map(
-              (request) =>
-                request.userId === currentUserId && (
-                  <tr
-                    key={request.id}
-                    className="hover:bg-[#2f2f2f] transition-colors"
+            {requests
+              .filter(
+                (request) =>
+                  request.status === "хүлээгдэж байна" ||
+                  request.status === "цуцлагдсан"
+              )
+              .map((request) => (
+                <tr
+                  key={request.id}
+                  className="hover:bg-[#2f2f2f] transition-colors"
+                >
+                  <td className="p-3 border-b border-[#2f2f2f]">
+                    {bookTitles[request.bookId] || "Ачааллаж байна..."}
+                  </td>
+                  <td className="p-3 border-b border-[#2f2f2f]">
+                    {userNames[request.userId] || "Ачааллаж байна..."}
+                  </td>
+                  <td className="p-3 border-b border-[#2f2f2f]">
+                    {userNames[request.buyerId] || "Ачааллаж байна..."}
+                  </td>
+                  <td className="p-3 border-b border-[#2f2f2f]">
+                    {new Date(request.date).toLocaleDateString("mn-MN")}
+                  </td>
+                  <td
+                    className={`p-3 border-b border-[#2f2f2f] ${
+                      request.status === "хүлээгдэж байна"
+                        ? "text-[#c29a59]"
+                        : "text-[#cf5d57]"
+                    }`}
                   >
-                    <td className="p-3 border-b border-[#2f2f2f]">
-                      {bookTitles[request.bookId] || "Ачааллаж байна..."}
-                    </td>
-                    <td className="p-3 border-b border-[#2f2f2f]">
-                      {userNames[request.userId] || "Ачааллаж байна..."}
-                    </td>
-                    <td className="p-3 border-b border-[#2f2f2f]">
-                      {userNames[request.buyerId] || "Ачааллаж байна..."}
-                    </td>
-                    <td className="p-3 border-b border-[#2f2f2f]">
-                      {new Date(request.date).toLocaleDateString("mn-MN")}
-                    </td>
-                    <td
-                      className={`p-3 border-b border-[#2f2f2f] ${
-                        request.status === "хүлээгдэж байна"
-                          ? "text-[#c29a59]"
-                          : request.status === "баталгаажсан"
-                          ? "text-[#659c75]"
-                          : "text-[#cf5d57]"
-                      }`}
-                    >
-                      {request.status}
-                    </td>
-                    <td className="p-3 border-b border-[#2f2f2f]">
-                      {request.status === "хүлээгдэж байна" && (
-                        <div className="flex space-x-2">
-                          <button
-                            className="p-2 bg-[#2a3c31] text-white rounded transition cursor-pointer"
-                            onClick={() =>
-                              handleUpdateStatus(
-                                request.id,
-                                "баталгаажсан",
-                                type
-                              )
-                            }
-                          >
-                            Баталгаажуулах
-                          </button>
-                          <button
-                            className="p-2 bg-[#4d302b] text-white rounded transition cursor-pointer"
-                            onClick={() =>
-                              handleUpdateStatus(request.id, "цуцлагдсан", type)
-                            }
-                          >
-                            Цуцлах
-                          </button>
-                        </div>
-                      )}
-                      {request.status !== "хүлээгдэж байна" && (
-                        <span className="text-gray-400">Дууссан</span>
-                      )}
-                    </td>
-                  </tr>
-                )
-            )}
+                    {request.status}
+                  </td>
+                  <td className="p-3 border-b border-[#2f2f2f]">
+                    {request.status === "хүлээгдэж байна" && (
+                      <div className="flex space-x-2">
+                        <button
+                          className="p-2 bg-[#2a3c31] text-white rounded transition cursor-pointer"
+                          onClick={() =>
+                            handleUpdateStatus(request.id, "баталгаажсан", type)
+                          }
+                        >
+                          Баталгаажуулах
+                        </button>
+                        <button
+                          className="p-2 bg-[#4d302b] text-white rounded transition cursor-pointer"
+                          onClick={() =>
+                            handleUpdateStatus(request.id, "цуцлагдсан", type)
+                          }
+                        >
+                          Устгах
+                        </button>
+                      </div>
+                    )}
+                    {request.status !== "хүлээгдэж байна" && (
+                      <span className="text-gray-400">Дууссан</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       )}
@@ -278,7 +230,9 @@ const Requests = () => {
 
   return (
     <div className="w-full h-screen flex flex-col items-center overflow-y-auto text-white p-5">
-      <h1 className="text-3xl font-bold mb-6 text-center">Хүсэлтүүд</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Хүлээгдэж байгаа хүсэлтүүд
+      </h1>
 
       <div className="w-full max-w-4xl mx-auto space-y-10">
         {/* Худалдаж авах хүсэлт */}
@@ -297,16 +251,6 @@ const Requests = () => {
         <div>
           <h2 className="text-2xl font-semibold mb-4">Хандивлах хүсэлт</h2>
           {renderRequestsTable(donationRequests, "Хандив")}
-        </div>
-
-        {/* Цуцлагдсан хүсэлтүүдийг устгах товч */}
-        <div className="mt-10">
-          <button
-            onClick={deleteCancelledRequests}
-            className="px-4 py-2 bg-[#4d302b] cursor-pointer text-white rounded"
-          >
-            Цуцлагдсан хүсэлтүүдийг устгах
-          </button>
         </div>
       </div>
     </div>
