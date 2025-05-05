@@ -22,44 +22,38 @@ const Store = () => {
   const [userNames, setUserNames] = useState<Record<string, string>>({}); // Хэрэглэгчийн ID болон нэрийг хадгалах
 
   // Firestore-оос номын нэрийг татах
-  const fetchBookTitles = useCallback(
-    async (bookIds: string[]) => {
-      const titles: Record<string, string> = {};
+  const fetchBookTitles = useCallback(async (bookIds: string[]) => {
+    const titles: Record<string, string> = {};
 
-      const promises = bookIds.map(async (bookId) => {
-        const bookDoc = await getDoc(doc(db, "books", bookId));
-        if (bookDoc.exists()) {
-          titles[bookId] = bookDoc.data().title;
-        } else {
-          titles[bookId] = "Нэр олдсонгүй";
-        }
-      });
+    const promises = bookIds.map(async (bookId) => {
+      const bookDoc = await getDoc(doc(db, "books", bookId));
+      if (bookDoc.exists()) {
+        titles[bookId] = bookDoc.data().title;
+      } else {
+        titles[bookId] = "Нэр олдсонгүй";
+      }
+    });
 
-      await Promise.all(promises);
-      setBookTitles(titles);
-    },
-    [db]
-  );
+    await Promise.all(promises);
+    setBookTitles(titles);
+  }, []);
 
   // Firestore-оос хэрэглэгчийн нэрийг татах
-  const fetchUserNames = useCallback(
-    async (userIds: string[]) => {
-      const names: Record<string, string> = {};
+  const fetchUserNames = useCallback(async (userIds: string[]) => {
+    const names: Record<string, string> = {};
 
-      const promises = userIds.map(async (userId) => {
-        const userDoc = await getDoc(doc(db, "users", userId));
-        if (userDoc.exists()) {
-          names[userId] = userDoc.data().name;
-        } else {
-          names[userId] = "Нэр олдсонгүй";
-        }
-      });
+    const promises = userIds.map(async (userId) => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        names[userId] = userDoc.data().name;
+      } else {
+        names[userId] = "Нэр олдсонгүй";
+      }
+    });
 
-      await Promise.all(promises);
-      setUserNames(names);
-    },
-    [db]
-  );
+    await Promise.all(promises);
+    setUserNames(names);
+  }, []);
 
   // Firestore-оос зөвхөн "баталгаажсан" хүсэлтүүдийг татах
   const getRequestsFromFirestore = useCallback(async () => {
@@ -102,7 +96,7 @@ const Store = () => {
 
     await fetchBookTitles(bookIds); // Номын нэрийг татах
     await fetchUserNames(userIds); // Хэрэглэгчийн нэрийг татах
-  }, [db, fetchBookTitles, fetchUserNames]);
+  }, [fetchBookTitles, fetchUserNames]);
 
   useEffect(() => {
     getRequestsFromFirestore();
@@ -171,15 +165,13 @@ const Store = () => {
 
         {/* Солилцох хүсэлт */}
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Солилцож авах номнууд</h2>
+          <h2 className="text-2xl font-semibold mb-4">Солилцох хүсэлт</h2>
           {renderRequestsTable(exchangeRequests, "Солилцох")}
         </div>
 
         {/* Хандивлах хүсэлт */}
         <div>
-          <h2 className="text-2xl font-semibold mb-4">
-            Хандиваар авах номнууд
-          </h2>
+          <h2 className="text-2xl font-semibold mb-4">Хандивлах хүсэлт</h2>
           {renderRequestsTable(donationRequests, "Хандив")}
         </div>
       </div>

@@ -4,11 +4,10 @@ import {
   collection,
   getDocs,
   updateDoc,
-  deleteDoc,
   doc,
   getDoc,
 } from "firebase/firestore";
-import { db, auth } from "@/firebaseConfig";
+import { db } from "@/firebaseConfig";
 
 // Хүсэлтийн төрлийн interface
 interface Request {
@@ -29,46 +28,38 @@ const Requests = () => {
   const [userNames, setUserNames] = useState<Record<string, string>>({}); // Хэрэглэгчийн ID болон нэрийг хадгалах
 
   // Firestore-оос номын нэрийг татах
-  const fetchBookTitles = useCallback(
-    async (bookIds: string[]) => {
-      const titles: Record<string, string> = {};
+  const fetchBookTitles = useCallback(async (bookIds: string[]) => {
+    const titles: Record<string, string> = {};
 
-      const promises = bookIds.map(async (bookId) => {
-        const bookDoc = await getDoc(doc(db, "books", bookId));
-        if (bookDoc.exists()) {
-          titles[bookId] = bookDoc.data().title;
-        } else {
-          titles[bookId] = "Нэр олдсонгүй";
-        }
-      });
+    const promises = bookIds.map(async (bookId) => {
+      const bookDoc = await getDoc(doc(db, "books", bookId));
+      if (bookDoc.exists()) {
+        titles[bookId] = bookDoc.data().title;
+      } else {
+        titles[bookId] = "Нэр олдсонгүй";
+      }
+    });
 
-      await Promise.all(promises);
-      setBookTitles(titles);
-    },
-    [db]
-  );
+    await Promise.all(promises);
+    setBookTitles(titles);
+  }, []);
 
   // Firestore-оос хэрэглэгчийн нэрийг татах
-  const fetchUserNames = useCallback(
-    async (userIds: string[]) => {
-      const names: Record<string, string> = {};
+  const fetchUserNames = useCallback(async (userIds: string[]) => {
+    const names: Record<string, string> = {};
 
-      const promises = userIds.map(async (userId) => {
-        const userDoc = await getDoc(doc(db, "users", userId));
-        if (userDoc.exists()) {
-          names[userId] = userDoc.data().name;
-        } else {
-          names[userId] = "Нэр олдсонгүй";
-        }
-      });
+    const promises = userIds.map(async (userId) => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        names[userId] = userDoc.data().name;
+      } else {
+        names[userId] = "Нэр олдсонгүй";
+      }
+    });
 
-      await Promise.all(promises);
-      setUserNames(names);
-    },
-    [db]
-  );
-
-  const currentUserId = auth.currentUser?.uid;
+    await Promise.all(promises);
+    setUserNames(names);
+  }, []);
 
   // Firestore-оос зөвхөн "хүлээгдэж байгаа" хүсэлтүүдийг татах
   const getRequestsFromFirestore = useCallback(async () => {
@@ -111,7 +102,7 @@ const Requests = () => {
 
     await fetchBookTitles(bookIds); // Номын нэрийг татах
     await fetchUserNames(userIds); // Хэрэглэгчийн нэрийг татах
-  }, [db, fetchBookTitles, fetchUserNames]);
+  }, [fetchBookTitles, fetchUserNames]);
 
   useEffect(() => {
     getRequestsFromFirestore();
@@ -163,65 +154,59 @@ const Requests = () => {
             </tr>
           </thead>
           <tbody>
-            {requests
-              .filter(
-                (request) =>
-                  request.status === "хүлээгдэж байна" ||
-                  request.status === "цуцлагдсан"
-              )
-              .map((request) => (
-                <tr
-                  key={request.id}
-                  className="hover:bg-[#2f2f2f] transition-colors"
+            {requests.map((request) => (
+              <tr
+                key={request.id}
+                className="hover:bg-[#2f2f2f] transition-colors"
+              >
+                <td className="p-3 border-b border-[#2f2f2f]">
+                  {bookTitles[request.bookId] || "Ачааллаж байна..."}
+                </td>
+                <td className="p-3 border-b border-[#2f2f2f]">
+                  {userNames[request.userId] || "Ачааллаж байна..."}
+                </td>
+                <td className="p-3 border-b border-[#2f2f2f]">
+                  {userNames[request.buyerId] || "Ачааллаж байна..."}
+                </td>
+                <td className="p-3 border-b border-[#2f2f2f]">
+                  {new Date(request.date).toLocaleDateString("mn-MN")}
+                </td>
+                <td
+                  className={`p-3 border-b border-[#2f2f2f] ${
+                    request.status === "хүлээгдэж байна"
+                      ? "text-[#c29a59]"
+                      : "text-[#cf5d57]"
+                  }`}
                 >
-                  <td className="p-3 border-b border-[#2f2f2f]">
-                    {bookTitles[request.bookId] || "Ачааллаж байна..."}
-                  </td>
-                  <td className="p-3 border-b border-[#2f2f2f]">
-                    {userNames[request.userId] || "Ачааллаж байна..."}
-                  </td>
-                  <td className="p-3 border-b border-[#2f2f2f]">
-                    {userNames[request.buyerId] || "Ачааллаж байна..."}
-                  </td>
-                  <td className="p-3 border-b border-[#2f2f2f]">
-                    {new Date(request.date).toLocaleDateString("mn-MN")}
-                  </td>
-                  <td
-                    className={`p-3 border-b border-[#2f2f2f] ${
-                      request.status === "хүлээгдэж байна"
-                        ? "text-[#c29a59]"
-                        : "text-[#cf5d57]"
-                    }`}
-                  >
-                    {request.status}
-                  </td>
-                  <td className="p-3 border-b border-[#2f2f2f]">
-                    {request.status === "хүлээгдэж байна" && (
-                      <div className="flex space-x-2">
-                        <button
-                          className="p-2 bg-[#2a3c31] text-white rounded transition cursor-pointer"
-                          onClick={() =>
-                            handleUpdateStatus(request.id, "баталгаажсан", type)
-                          }
-                        >
-                          Баталгаажуулах
-                        </button>
-                        <button
-                          className="p-2 bg-[#4d302b] text-white rounded transition cursor-pointer"
-                          onClick={() =>
-                            handleUpdateStatus(request.id, "цуцлагдсан", type)
-                          }
-                        >
-                          Устгах
-                        </button>
-                      </div>
-                    )}
-                    {request.status !== "хүлээгдэж байна" && (
-                      <span className="text-gray-400">Дууссан</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                  {request.status}
+                </td>
+                <td className="p-3 border-b border-[#2f2f2f]">
+                  {request.status === "хүлээгдэж байна" && (
+                    <div className="flex space-x-2">
+                      <button
+                        className="p-2 bg-[#2a3c31] text-white rounded transition cursor-pointer"
+                        onClick={() =>
+                          handleUpdateStatus(request.id, "баталгаажсан", type)
+                        }
+                      >
+                        Баталгаажуулах
+                      </button>
+                      <button
+                        className="p-2 bg-[#4d302b] text-white rounded transition cursor-pointer"
+                        onClick={() =>
+                          handleUpdateStatus(request.id, "цуцлагдсан", type)
+                        }
+                      >
+                        Устгах
+                      </button>
+                    </div>
+                  )}
+                  {request.status !== "хүлээгдэж байна" && (
+                    <span className="text-gray-400">Дууссан</span>
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       )}

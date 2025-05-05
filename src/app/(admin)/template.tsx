@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { auth, db } from "@/firebaseConfig";
+import { auth } from "@/firebaseConfig";
 import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,6 @@ import {
   ShieldUser,
   MessageCircle,
 } from "lucide-react"; // Lucide-ийн icon-ыг rename хийж оруулах
-import { doc, getDoc } from "firebase/firestore";
 
 // 📌 Хэрэглэгчийн мэдээллийн интерфэйс
 interface UserInfo {
@@ -35,7 +34,6 @@ export default function AdminLayout({
 }>) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null); // Хэрэглэгчийн нэмэлт мэдээлэл
 
   const linkHref = [
     { icon: Search, href: "searchBooks", label: "Ном Хайх" },
@@ -56,22 +54,9 @@ export default function AdminLayout({
     { icon: Users, href: "adminUsers", label: "Хэрэглэгчид" },
   ];
 
-  // 🔄 Firestore-с хэрэглэгчийн нэмэлт мэдээллийг татах
-  const fetchUserInfo = async (uid: string) => {
-    const userDoc = doc(db, "users", uid);
-    const userSnapshot = await getDoc(userDoc);
-    if (userSnapshot.exists()) {
-      const userData = userSnapshot.data() as UserInfo; // UserInfo төрлөөр хөрвүүлэх
-      setUserInfo(userData);
-    }
-  };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (currentUser) {
-        fetchUserInfo(currentUser.uid); // Call fetchUserInfo when user is set
-      }
     });
     return () => unsubscribe();
   }, []);
