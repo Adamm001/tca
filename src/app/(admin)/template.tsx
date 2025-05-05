@@ -20,13 +20,6 @@ import {
   MessageCircle,
 } from "lucide-react"; // Lucide-ийн icon-ыг rename хийж оруулах
 
-// 📌 Хэрэглэгчийн мэдээллийн интерфэйс
-interface UserInfo {
-  name?: string;
-  email?: string;
-  phone?: string;
-}
-
 export default function AdminLayout({
   children,
 }: Readonly<{

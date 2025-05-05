@@ -103,10 +103,7 @@ const Store = () => {
   }, [getRequestsFromFirestore]);
 
   // Хүсэлтийн хүснэгт харуулах функц
-  const renderRequestsTable = (
-    requests: Request[],
-    type: "Зарах" | "Солилцох" | "Хандив"
-  ) => (
+  const renderRequestsTable = (requests: Request[]) => (
     <div className="bg-[#252525] p-6 rounded-lg border border-[#2f2f2f] shadow-lg">
       {requests.length === 0 ? (
         <div className="text-center text-gray-400 text-lg">
@@ -160,19 +157,19 @@ const Store = () => {
         {/* Худалдаж авах хүсэлт */}
         <div>
           <h2 className="text-2xl font-semibold mb-4">Худалдаж авах номнууд</h2>
-          {renderRequestsTable(purchaseRequests, "Зарах")}
+          {renderRequestsTable(purchaseRequests)}
         </div>
 
         {/* Солилцох хүсэлт */}
         <div>
           <h2 className="text-2xl font-semibold mb-4">Солилцох хүсэлт</h2>
-          {renderRequestsTable(exchangeRequests, "Солилцох")}
+          {renderRequestsTable(exchangeRequests)}
         </div>
 
         {/* Хандивлах хүсэлт */}
         <div>
           <h2 className="text-2xl font-semibold mb-4">Хандивлах хүсэлт</h2>
-          {renderRequestsTable(donationRequests, "Хандив")}
+          {renderRequestsTable(donationRequests)}
         </div>
       </div>
     </div>

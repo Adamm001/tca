@@ -2,9 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { signOut } from "firebase/auth";
-import { db, auth } from "@/firebaseConfig";
-import { useRouter } from "next/navigation";
+import { db } from "@/firebaseConfig";
 import Image from "next/image"; // next/image-ийг импортлох
 
 interface Book {
