@@ -6,6 +6,7 @@ import {
   updateDoc,
   doc,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import { getAuth } from "firebase/auth"; // Firebase Authentication-оос auth авах
@@ -115,23 +116,63 @@ const Requests = () => {
   const handleUpdateStatus = async (
     id: string,
     newStatus: "хүлээгдэж байна" | "баталгаажсан" | "цуцлагдсан",
-    type: "Зарах" | "Солилцох" | "Хандив"
+    type: "Зарах" | "Солилцох" | "Хандив",
+    bookId: string // Номын ID-г устгахын тулд нэмсэн
   ) => {
     const requestRef = doc(db, "requests", id);
-    await updateDoc(requestRef, { status: newStatus });
+    const bookRef = doc(db, "books", bookId); // Номын баримт бичгийн лавлагаа
 
-    if (type === "Зарах") {
-      setPurchaseRequests((prev) =>
-        prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
-      );
-    } else if (type === "Солилцох") {
-      setExchangeRequests((prev) =>
-        prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
-      );
-    } else if (type === "Хандив") {
-      setDonationRequests((prev) =>
-        prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
-      );
+    if (newStatus === "баталгаажсан") {
+      // Firestore-оос тухайн номыг устгах
+      await deleteDoc(bookRef);
+
+      // Firestore дээрх хүсэлтийн статусыг шинэчлэх
+      await updateDoc(requestRef, { status: newStatus });
+
+      // UI-г шинэчлэх
+      if (type === "Зарах") {
+        setPurchaseRequests((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, status: newStatus } : req
+          )
+        );
+      } else if (type === "Солилцох") {
+        setExchangeRequests((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, status: newStatus } : req
+          )
+        );
+      } else if (type === "Хандив") {
+        setDonationRequests((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, status: newStatus } : req
+          )
+        );
+      }
+    } else {
+      // Хэрэв статус өөрчлөгдөх бол Firestore дээр шинэчлэх
+      await updateDoc(requestRef, { status: newStatus });
+
+      // UI-г шинэчлэх
+      if (type === "Зарах") {
+        setPurchaseRequests((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, status: newStatus } : req
+          )
+        );
+      } else if (type === "Солилцох") {
+        setExchangeRequests((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, status: newStatus } : req
+          )
+        );
+      } else if (type === "Хандив") {
+        setDonationRequests((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, status: newStatus } : req
+          )
+        );
+      }
     }
   };
 
@@ -190,7 +231,12 @@ const Requests = () => {
                       <button
                         className="p-2 bg-[#2a3c31] text-white rounded transition cursor-pointer"
                         onClick={() =>
-                          handleUpdateStatus(request.id, "баталгаажсан", type)
+                          handleUpdateStatus(
+                            request.id,
+                            "баталгаажсан",
+                            type,
+                            request.bookId
+                          )
                         }
                       >
                         Баталгаажуулах
@@ -198,7 +244,12 @@ const Requests = () => {
                       <button
                         className="p-2 bg-[#4d302b] text-white rounded transition cursor-pointer"
                         onClick={() =>
-                          handleUpdateStatus(request.id, "цуцлагдсан", type)
+                          handleUpdateStatus(
+                            request.id,
+                            "цуцлагдсан",
+                            type,
+                            request.bookId
+                          )
                         }
                       >
                         Устгах
