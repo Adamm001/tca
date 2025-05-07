@@ -52,7 +52,7 @@ const BookCard: React.FC<BookCardProps> = ({
 
         {/* Дэлгэрэнгүй товч */}
         <button
-          className="mt-3 w-full p-2 bg-[#4281db] text-white rounded-md hover:bg-[#3375cd] transition"
+          className="mt-3 w-full p-2 bg-[#1e394c] text-white rounded-md hover:bg-[#1e394c] transition"
           onClick={onClick}
         >
           Дэлгэрэнгүй

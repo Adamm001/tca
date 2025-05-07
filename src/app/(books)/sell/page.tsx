@@ -60,7 +60,6 @@ const Sell = () => {
   const addBookToFirestore = async (book: Book) => {
     try {
       await addDoc(collection(db, "books"), book);
-      console.log("Book added successfully!");
     } catch (error) {
       console.error("Error adding book:", error);
     }
@@ -243,7 +242,7 @@ const Sell = () => {
 
         <button
           type="submit"
-          className="w-full h-10 p-2 bg-[#4281db] text-white rounded hover:bg-[#3375cd] active:bg-[#0e69c3] transition duration-200"
+          className="w-full h-10 p-2 bg-[#1e394c] text-white rounded hover:bg-[#1e394c] active:bg-[#0e69c3] transition duration-200"
         >
           Ном нэмэх
         </button>

@@ -205,7 +205,7 @@ const Search = () => {
 
           <button
             type="submit"
-            className="flex-1 h-10 w-full p-2 bg-[#4281db] text-white rounded hover:bg-[#3375cd] active:bg-[#0e69c3]"
+            className="flex-1 h-10 w-full p-2 bg-[#1e394c] text-white rounded hover:bg-[#1e394c] active:bg-[#0e69c3]"
           >
             Хайх
           </button>
@@ -241,7 +241,7 @@ const Search = () => {
                 </p>
                 <button
                   onClick={() => handleSendRequest(result.id, result.status)}
-                  className="mt-4 bg-[#4281db] text-white py-2 px-4 rounded-lg hover:bg-[#3375cd] active:bg-[#0e69c3]"
+                  className="mt-4 bg-[#1e394c] text-white py-2 px-4 rounded-lg hover:bg-[#1e394c] active:bg-[#0e69c3]"
                 >
                   Худалдаж авах хүсэлт илгээх
                 </button>

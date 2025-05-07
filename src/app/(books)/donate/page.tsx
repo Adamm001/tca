@@ -23,7 +23,6 @@ const getBooksFromFirestore = async (): Promise<Book[]> => {
     id: doc.id,
     ...(doc.data() as Omit<Book, "id">),
   }));
-  console.log("Номын жагсаалт:", books);
   return books;
 };
 
@@ -145,7 +144,7 @@ const Container = () => {
               </button>
               <button
                 onClick={handleSendRequest}
-                className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
+                className="px-4 py-2 bg-[#1e394c] rounded"
               >
                 Хүсэлт илгээх
               </button>

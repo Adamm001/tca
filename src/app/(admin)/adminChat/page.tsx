@@ -28,7 +28,7 @@ interface User {
   name: string;
 }
 
-const Chats = () => {
+const AdminChats = () => {
   const [users, setUsers] = useState<User[]>([]); // Хэрэглэгчдийн жагсаалт
   const [searchTerm, setSearchTerm] = useState(""); // Хэрэглэгч хайх
   const [selectedUser, setSelectedUser] = useState<User | null>(null); // Сонгосон хэрэглэгч
@@ -149,19 +149,19 @@ const Chats = () => {
       <div className="w-3/4 ml-5 bg-[#252525] p-4 rounded-lg border border-[#2f2f2f] shadow-lg flex flex-col justify-between">
         {selectedUser ? (
           <>
-            <h2 className="text-2xl font-semibold text-center">
+            <h2 className="text-2xl font-semibold mb-4">
               Чат: {selectedUser.name}
             </h2>
 
             {/* Мессеж харуулах хэсэг */}
-            <div className="h-[75vh] overflow-y-auto bg-[#333333] p-3 rounded-lg space-y-3">
+            <div className="h-[60vh] overflow-y-auto bg-[#333333] p-3 rounded-lg space-y-3">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`py-2 px-5 rounded-xl ${
+                  className={`p-3 rounded-lg ${
                     msg.senderId === currentUserId
-                      ? "bg-[#8d8d8d27] text-white flex flex-col items-end"
-                      : "bg-[#2f2f2f] text-gray-300 flex flex-col items-start"
+                      ? "bg-[#1e394c] text-white"
+                      : "bg-[#2f2f2f] text-gray-300"
                   }`}
                 >
                   <p className="text-sm">
@@ -204,4 +204,4 @@ const Chats = () => {
   );
 };
 
-export default Chats;
+export default AdminChats;

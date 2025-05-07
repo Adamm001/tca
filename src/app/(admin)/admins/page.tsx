@@ -131,7 +131,7 @@ const Admin = () => {
       <div>
         <p>Админ нэмэх</p>
         <button
-          className="bg-[#4281db] text-white py-2 px-4 rounded-lg mt-2 hover:bg-[#3375cd] transition duration-200"
+          className="bg-[#1e394c] text-white py-2 px-4 rounded-lg mt-2 hover:bg-[#1e394c] transition duration-200"
           onClick={() => setModal(true)}
         >
           Нэмэх
@@ -239,7 +239,7 @@ const Admin = () => {
             <div className="flex gap-2 mt-5">
               <button
                 type="submit"
-                className="bg-[#4281db] w-2/3 h-10 text-xl font-bold rounded-md border-1 border-[#4a4a4a] cursor-pointer px-3 py-1 hover:bg-[#3375cd] active:bg-[#0e69c3]"
+                className="bg-[#1e394c] w-2/3 h-10 text-xl font-bold rounded-md border-1 border-[#4a4a4a] cursor-pointer px-3 py-1 hover:bg-[#1e394c] active:bg-[#0e69c3]"
               >
                 Бүртгүүлэх
               </button>

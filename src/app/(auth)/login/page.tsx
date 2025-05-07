@@ -105,7 +105,7 @@ const Login = () => {
 
         <button
           type="submit"
-          className="bg-[#4281db] w-full h-10 text-xl font-bold rounded-md border-1 border-[#4a4a4a] cursor-pointer px-3 py-1 mt-5 hover:bg-[#3375cd] active:bg-[#0e69c3]"
+          className="bg-[#1e394c] w-full h-10 text-xl font-bold rounded-md border-1 border-[#4a4a4a] cursor-pointer px-3 py-1 mt-5 hover:bg-[#1e394c] active:bg-[#0e69c3]"
         >
           Нэвтрэх
         </button>

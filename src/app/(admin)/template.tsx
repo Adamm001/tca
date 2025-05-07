@@ -134,7 +134,7 @@ export default function AdminLayout({
           <div className="flex flex-col gap-1 w-full">
             <p className="text-[#9b9b9b]">Функц</p>
             <Link
-              href="#"
+              href="/adminChat"
               className="w-full h-8 p-2 flex items-center gap-3 hover:bg-[#2c2c2c] rounded-lg transition ease-in-out duration-200"
             >
               <MessageCircle className="w-5 h-5 text-[#9b9b9b]" />

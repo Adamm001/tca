@@ -54,8 +54,6 @@ const deleteBookFromFirestore = async (bookId: string, imageUrl: string) => {
       const imageRef = ref(storage, imageUrl);
       await deleteObject(imageRef);
     }
-
-    console.log("Ном амжилттай устгагдлаа!");
   } catch (error) {
     console.error("Ном устгахад алдаа гарлаа:", error);
   }
@@ -69,7 +67,6 @@ const updateBookInFirestore = async (
   const bookRef = doc(db, "books", bookId);
   try {
     await updateDoc(bookRef, updatedData);
-    console.log("Ном амжилттай шинэчлэгдлээ!");
   } catch (error) {
     console.error("Ном шинэчлэхэд алдаа гарлаа:", error);
   }
@@ -144,7 +141,6 @@ const Profile = () => {
         ...(doc.data() as Omit<Request, "id">),
       }));
 
-      console.log("Миний хүсэлтүүд:", requests); // Хүсэлтүүдийг консолд хэвлэх
       setMyRequests(requests);
     } catch (error) {
       console.error("Миний хүсэлтүүдийг татахад алдаа гарлаа:", error);

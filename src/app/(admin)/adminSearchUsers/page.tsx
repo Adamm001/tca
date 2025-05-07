@@ -78,7 +78,7 @@ const AdminSearchUsers = () => {
         </div>
         <button
           type="submit"
-          className="h-10 w-full p-2 bg-[#4281db] text-white rounded hover:bg-[#3375cd] active:bg-[#0e69c3]"
+          className="h-10 w-full p-2 bg-[#1e394c] text-white rounded hover:bg-[#1e394c] active:bg-[#0e69c3]"
         >
           Хайх
         </button>

@@ -10,7 +10,7 @@ interface Book {
   title: string;
   author: string;
   price: number;
-  status: "Зарах" | "Солих" | "Хандивлах"; // Номын төрөл
+  status: "Зарах" | "Солилцох" | "Хандивлах"; // Номын төрөл
   imageUrl: string; // Номны зурагны URL
 }
 
@@ -65,7 +65,7 @@ const Admin = () => {
     fetchBooks();
   }, []);
 
-  const booksForExchange = books.filter((book) => book.status === "Солих");
+  const booksForExchange = books.filter((book) => book.status === "Солилцох");
 
   return (
     <div className="p-5 w-full text-white flex flex-col items-center">

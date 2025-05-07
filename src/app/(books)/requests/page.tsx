@@ -8,6 +8,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
+import { getAuth } from "firebase/auth"; // Firebase Authentication-оос auth авах
 
 // Хүсэлтийн төрлийн interface
 interface Request {
@@ -26,6 +27,9 @@ const Requests = () => {
   const [donationRequests, setDonationRequests] = useState<Request[]>([]);
   const [bookTitles, setBookTitles] = useState<Record<string, string>>({});
   const [userNames, setUserNames] = useState<Record<string, string>>({}); // Хэрэглэгчийн ID болон нэрийг хадгалах
+
+  const auth = getAuth();
+  const currentUserId = auth.currentUser?.uid; // Одоогийн хэрэглэгчийн ID
 
   // Firestore-оос номын нэрийг татах
   const fetchBookTitles = useCallback(async (bookIds: string[]) => {
@@ -61,8 +65,10 @@ const Requests = () => {
     setUserNames(names);
   }, []);
 
-  // Firestore-оос зөвхөн "хүлээгдэж байгаа" хүсэлтүүдийг татах
+  // Firestore-оос зөвхөн одоогийн хэрэглэгчид ирсэн хүсэлтүүдийг татах
   const getRequestsFromFirestore = useCallback(async () => {
+    if (!currentUserId) return;
+
     const querySnapshot = await getDocs(collection(db, "requests"));
     const requests = querySnapshot.docs.map((doc) => ({
       ...(doc.data() as Request),
@@ -73,15 +79,13 @@ const Requests = () => {
         | "цуцлагдсан",
     })) as Request[];
 
-    // Зөвхөн хүлээгдэж байгаа хүсэлтүүдийг шүүх
-    const pendingRequests = requests.filter(
-      (req) => req.status === "хүлээгдэж байна"
-    );
+    // Зөвхөн одоогийн хэрэглэгчид ирсэн хүсэлтүүдийг шүүх
+    const userRequests = requests.filter((req) => req.userId === currentUserId);
 
     // Хүсэлтүүдийг төрөлөөр нь ялгах
-    const purchase = pendingRequests.filter((req) => req.type === "Зарах");
-    const exchange = pendingRequests.filter((req) => req.type === "Солилцох");
-    const donation = pendingRequests.filter((req) => req.type === "Хандив");
+    const purchase = userRequests.filter((req) => req.type === "Зарах");
+    const exchange = userRequests.filter((req) => req.type === "Солилцох");
+    const donation = userRequests.filter((req) => req.type === "Хандив");
 
     setPurchaseRequests(purchase);
     setExchangeRequests(exchange);
@@ -89,11 +93,11 @@ const Requests = () => {
 
     // Номын ID болон хэрэглэгчийн ID-уудыг цуглуулах
     const bookIds = Array.from(
-      new Set(pendingRequests.map((req) => req.bookId).filter((id) => id))
+      new Set(userRequests.map((req) => req.bookId).filter((id) => id))
     );
     const userIds = Array.from(
       new Set(
-        pendingRequests
+        userRequests
           .map((req) => [req.buyerId, req.userId])
           .flat()
           .filter((id) => id)
@@ -102,7 +106,7 @@ const Requests = () => {
 
     await fetchBookTitles(bookIds); // Номын нэрийг татах
     await fetchUserNames(userIds); // Хэрэглэгчийн нэрийг татах
-  }, [fetchBookTitles, fetchUserNames]);
+  }, [fetchBookTitles, fetchUserNames, currentUserId]);
 
   useEffect(() => {
     getRequestsFromFirestore();
